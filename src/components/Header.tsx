@@ -28,7 +28,7 @@ const Header: React.FC = () => {
         <div className="flex justify-between items-center">
           <a href="#home" className="flex items-center group">
             <img 
-              src="/src/images/logokonisgames.png" 
+              src="/logokonisgames.png" 
               alt="Konis Games and More" 
               className="h-16 w-auto"
             />
