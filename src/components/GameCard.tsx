@@ -43,11 +43,7 @@ const GameCard: React.FC<GameCardProps> = ({ game, bestSeller = false }) => {
 
   return (
     <div className="bg-gray-800 rounded-xl overflow-hidden transition-all duration-300 hover:shadow-lg hover:shadow-purple-500/20 group">
-      {bestSeller && (
-        <div className="bg-purple-600 text-white px-3 py-1 absolute top-3 left-3 rounded-full text-xs font-semibold z-10">
-          Best Seller
-        </div>
-      )}
+      
       <div className="relative overflow-hidden h-48">
         <img 
           src={game.imageUrl} 

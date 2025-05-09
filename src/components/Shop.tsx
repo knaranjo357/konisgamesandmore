@@ -17,8 +17,19 @@ const Shop: React.FC = () => {
       try {
         setLoading(true);
         const allGames = await fetchGames();
-        setGames(allGames);
-        const uniqueConsoles = Array.from(new Set(allGames.map(game => game.console)));
+        // Remove duplicates based on id
+        const uniqueGames = allGames.reduce((acc: Game[], current) => {
+          const x = acc.find(item => item.id === current.id);
+          if (!x) {
+            return acc.concat([current]);
+          } else {
+            return acc;
+          }
+        }, []);
+        setGames(uniqueGames);
+        
+        // Get unique consoles
+        const uniqueConsoles = Array.from(new Set(uniqueGames.map(game => game.console)));
         setConsoles(['all', ...uniqueConsoles]);
         setError(null);
       } catch (err) {
@@ -30,14 +41,25 @@ const Shop: React.FC = () => {
     };
 
     loadGames();
-  }, []); // Empty dependency array to run only once
+  }, []);
 
   const filteredGames = games.filter(game => {
-    const matchesConsole = selectedConsole === 'all' || game.console === selectedConsole;
-    const matchesSearch = game.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-                         game.console.toLowerCase().includes(searchQuery.toLowerCase()) ||
-                         game.description.toLowerCase().includes(searchQuery.toLowerCase());
-    return matchesConsole && matchesSearch;
+    // Strict console matching
+    if (selectedConsole !== 'all' && game.console !== selectedConsole) {
+      return false;
+    }
+
+    // Search filtering
+    if (searchQuery) {
+      const query = searchQuery.toLowerCase();
+      return (
+        game.name.toLowerCase().includes(query) ||
+        game.console.toLowerCase().includes(query) ||
+        game.description.toLowerCase().includes(query)
+      );
+    }
+
+    return true;
   });
 
   return (
@@ -57,6 +79,7 @@ const Shop: React.FC = () => {
             </div>
             
             <select
+              id="console-select"
               value={selectedConsole}
               onChange={(e) => setSelectedConsole(e.target.value)}
               className="bg-gray-700 text-white px-4 py-3 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500 md:w-48"

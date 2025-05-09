@@ -8,18 +8,33 @@ interface ConsoleItem {
   image: string;
 }
 
-const ConsoleBrowser: React.FC = () => {
+interface Props {
+  onConsoleSelect?: (console: string) => void;
+}
+
+const ConsoleBrowser: React.FC<Props> = ({ onConsoleSelect }) => {
   const [consoles, setConsoles] = useState<ConsoleItem[]>([]);
 
   useEffect(() => {
     const loadConsoles = async () => {
       try {
         const games = await fetchGames();
-        const uniqueConsoles = Array.from(new Set(games.map(game => game.console)))
+        // Remove duplicates from games first
+        const uniqueGames = games.reduce((acc: Game[], current) => {
+          const x = acc.find(item => item.id === current.id);
+          if (!x) {
+            return acc.concat([current]);
+          } else {
+            return acc;
+          }
+        }, []);
+
+        // Get unique consoles
+        const uniqueConsoles = Array.from(new Set(uniqueGames.map(game => game.console)))
           .map(consoleName => ({
-            name: consoleName.toUpperCase(),
+            name: consoleName,
             slug: consoleName.toLowerCase().replace(/\s+/g, '-'),
-            image: games.find(game => game.console === consoleName)?.console_url || ''
+            image: uniqueGames.find(game => game.console === consoleName)?.console_url || ''
           }));
         setConsoles(uniqueConsoles);
       } catch (error) {
@@ -28,7 +43,22 @@ const ConsoleBrowser: React.FC = () => {
     };
 
     loadConsoles();
-  }, []); // Empty dependency array to run only once
+  }, []);
+
+  const handleConsoleClick = (console: ConsoleItem) => {
+    const shopElement = document.getElementById('shop');
+    if (shopElement) {
+      shopElement.scrollIntoView({ behavior: 'smooth' });
+      
+      // Update the console select element
+      const selectElement = document.getElementById('console-select') as HTMLSelectElement;
+      if (selectElement) {
+        selectElement.value = console.name;
+        // Trigger change event
+        selectElement.dispatchEvent(new Event('change', { bubbles: true }));
+      }
+    }
+  };
 
   return (
     <section className="py-16 bg-gray-900">
@@ -37,9 +67,9 @@ const ConsoleBrowser: React.FC = () => {
         
         <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-6">
           {consoles.map((console) => (
-            <a 
+            <button 
               key={console.slug}
-              href={`#${console.slug}`}
+              onClick={() => handleConsoleClick(console)}
               className="bg-gray-800 rounded-lg p-4 transform transition duration-300 hover:scale-105 group flex flex-col items-center justify-center"
             >
               <div className="w-20 h-20 rounded-full overflow-hidden mb-4 border-2 border-gray-700 group-hover:border-purple-500 transition-colors">
@@ -52,7 +82,7 @@ const ConsoleBrowser: React.FC = () => {
               <h3 className="text-center text-sm font-medium text-gray-300 group-hover:text-purple-400 transition-colors">
                 {console.name}
               </h3>
-            </a>
+            </button>
           ))}
         </div>
       </div>
