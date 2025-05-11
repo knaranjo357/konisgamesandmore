@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { Game } from '../types';
 import { fetchGames } from '../api/gameService';
-import { Search, X } from 'lucide-react';
+import { Search, X, Filter, SortAsc, SortDesc } from 'lucide-react';
 
 const Admin: React.FC = () => {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
@@ -24,6 +24,12 @@ const Admin: React.FC = () => {
   const [showConsoleDropdown, setShowConsoleDropdown] = useState(false);
   const [filteredConsoles, setFilteredConsoles] = useState<{ name: string; url: string }[]>([]);
   const consoleInputRef = useRef<HTMLInputElement>(null);
+  
+  // New state for filtering and sorting
+  const [selectedConsole, setSelectedConsole] = useState('all');
+  const [searchQuery, setSearchQuery] = useState('');
+  const [sortField, setSortField] = useState<'name' | 'price' | 'rating' | 'console'>('name');
+  const [sortDirection, setSortDirection] = useState<'asc' | 'desc'>('asc');
 
   useEffect(() => {
     const token = localStorage.getItem('adminToken');
@@ -64,7 +70,16 @@ const Admin: React.FC = () => {
   const loadGames = async () => {
     try {
       const data = await fetchGames();
-      setGames(data);
+      // Remove duplicates based on id
+      const uniqueGames = data.reduce((acc: Game[], current) => {
+        const x = acc.find(item => item.id === current.id);
+        if (!x) {
+          return acc.concat([current]);
+        } else {
+          return acc;
+        }
+      }, []);
+      setGames(uniqueGames);
     } catch (error) {
       console.error('Error loading games:', error);
       setError('Failed to load games');
@@ -123,27 +138,31 @@ const Admin: React.FC = () => {
   };
 
   const handleDelete = async (rowNumber: number) => {
-    try {
-      const response = await fetch('https://proyecto-n8n.latiyp.easypanel.host/webhook/konisgamesandmore/games', {
-        method: 'DELETE',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ row_number: rowNumber }),
-      });
+    if (window.confirm('Are you sure you want to delete this game?')) {
+      try {
+        const response = await fetch('https://proyecto-n8n.latiyp.easypanel.host/webhook/konisgamesandmore/games', {
+          method: 'DELETE',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({ row_number: rowNumber }),
+        });
 
-      if (!response.ok) {
-        throw new Error('Failed to delete game');
+        if (!response.ok) {
+          throw new Error('Failed to delete game');
+        }
+
+        await loadGames();
+        setError('');
+      } catch (error) {
+        setError('Failed to delete game');
       }
-
-      await loadGames();
-    } catch (error) {
-      setError('Failed to delete game');
     }
   };
 
   const handleEdit = (game: Game) => {
     setFormData(game);
+    window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
@@ -162,6 +181,31 @@ const Admin: React.FC = () => {
     }));
     setShowConsoleDropdown(false);
   };
+
+  const handleSort = (field: typeof sortField) => {
+    if (sortField === field) {
+      setSortDirection(prev => prev === 'asc' ? 'desc' : 'asc');
+    } else {
+      setSortField(field);
+      setSortDirection('asc');
+    }
+  };
+
+  const filteredAndSortedGames = games
+    .filter(game => {
+      const matchesConsole = selectedConsole === 'all' || game.console === selectedConsole;
+      const matchesSearch = searchQuery === '' || 
+        game.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        game.description.toLowerCase().includes(searchQuery.toLowerCase());
+      return matchesConsole && matchesSearch;
+    })
+    .sort((a, b) => {
+      const aValue = String(a[sortField]);
+      const bValue = String(b[sortField]);
+      return sortDirection === 'asc' 
+        ? aValue.localeCompare(bValue)
+        : bValue.localeCompare(aValue);
+    });
 
   if (loading) {
     return (
@@ -422,38 +466,108 @@ const Admin: React.FC = () => {
 
           <div className="bg-gray-800 p-6 rounded-lg">
             <h2 className="text-2xl font-bold mb-6">Games List</h2>
-            <div className="space-y-4 max-h-[800px] overflow-y-auto">
-              {games.map(game => (
-                <div key={game.id} className="bg-gray-700 p-4 rounded-lg flex gap-4">
-                  <img
-                    src={game.imageUrl}
-                    alt={game.name}
-                    className="w-24 h-24 object-cover rounded"
-                    onError={(e) => {
-                      (e.target as HTMLImageElement).src = '/logokonisgames.png';
-                    }}
+            
+            <div className="mb-6 space-y-4">
+              <div className="flex gap-4">
+                <div className="flex-1 relative">
+                  <input
+                    type="text"
+                    placeholder="Search games..."
+                    value={searchQuery}
+                    onChange={(e) => setSearchQuery(e.target.value)}
+                    className="w-full bg-gray-700 p-3 pr-10 rounded"
                   />
-                  <div className="flex-1">
-                    <h3 className="font-bold text-lg">{game.name}</h3>
-                    <p className="text-gray-300">{game.console}</p>
-                    <p className="text-purple-400">${game.price}</p>
-                    <div className="flex gap-2 mt-2">
-                      <button
-                        onClick={() => handleEdit(game)}
-                        className="bg-purple-600 hover:bg-purple-700 px-4 py-2 rounded text-sm transition-colors"
-                      >
-                        Edit
-                      </button>
-                      <button
-                        onClick={() => handleDelete(game.row_number)}
-                        className="bg-red-600 hover:bg-red-700 px-4 py-2 rounded text-sm transition-colors"
-                      >
-                        Delete
-                      </button>
+                  <Search className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 w-5 h-5" />
+                </div>
+                
+                <select
+                  value={selectedConsole}
+                  onChange={(e) => setSelectedConsole(e.target.value)}
+                  className="bg-gray-700 p-3 rounded min-w-[150px]"
+                >
+                  <option value="all">All Consoles</option>
+                  {consoles.map((console, index) => (
+                    <option key={index} value={console.name}>
+                      {console.name}
+                    </option>
+                  ))}
+                </select>
+              </div>
+
+              <div className="flex gap-2">
+                <button
+                  onClick={() => handleSort('name')}
+                  className={`flex items-center gap-1 px-3 py-1 rounded ${
+                    sortField === 'name' ? 'bg-purple-600' : 'bg-gray-700'
+                  }`}
+                >
+                  Name {sortField === 'name' && (sortDirection === 'asc' ? <SortAsc size={16} /> : <SortDesc size={16} />)}
+                </button>
+                <button
+                  onClick={() => handleSort('price')}
+                  className={`flex items-center gap-1 px-3 py-1 rounded ${
+                    sortField === 'price' ? 'bg-purple-600' : 'bg-gray-700'
+                  }`}
+                >
+                  Price {sortField === 'price' && (sortDirection === 'asc' ? <SortAsc size={16} /> : <SortDesc size={16} />)}
+                </button>
+                <button
+                  onClick={() => handleSort('rating')}
+                  className={`flex items-center gap-1 px-3 py-1 rounded ${
+                    sortField === 'rating' ? 'bg-purple-600' : 'bg-gray-700'
+                  }`}
+                >
+                  Rating {sortField === 'rating' && (sortDirection === 'asc' ? <SortAsc size={16} /> : <SortDesc size={16} />)}
+                </button>
+                <button
+                  onClick={() => handleSort('console')}
+                  className={`flex items-center gap-1 px-3 py-1 rounded ${
+                    sortField === 'console' ? 'bg-purple-600' : 'bg-gray-700'
+                  }`}
+                >
+                  Console {sortField === 'console' && (sortDirection === 'asc' ? <SortAsc size={16} /> : <SortDesc size={16} />)}
+                </button>
+              </div>
+            </div>
+
+            <div className="space-y-4 max-h-[800px] overflow-y-auto">
+              {filteredAndSortedGames.length === 0 ? (
+                <div className="text-center text-gray-400 py-8">
+                  No games found
+                </div>
+              ) : (
+                filteredAndSortedGames.map(game => (
+                  <div key={game.id} className="bg-gray-700 p-4 rounded-lg flex gap-4">
+                    <img
+                      src={game.imageUrl}
+                      alt={game.name}
+                      className="w-24 h-24 object-cover rounded"
+                      onError={(e) => {
+                        (e.target as HTMLImageElement).src = '/logokonisgames.png';
+                      }}
+                    />
+                    <div className="flex-1">
+                      <h3 className="font-bold text-lg">{game.name}</h3>
+                      <p className="text-gray-300">{game.console}</p>
+                      <p className="text-purple-400">${game.price}</p>
+                      <div className="flex gap-2 mt-2">
+                        <button
+                          onClick={() => handleEdit(game)}
+                          className="bg-purple-600 hover:bg-purple-700 px-4 py-2 rounded text-sm transition-colors"
+                        >
+                          Edit
+                        </button>
+                        <button
+                          onClick={() => handleDelete(game.row_number)}
+                          className="bg-red-600 hover:bg-red-700 px-4 py-2 rounded text-sm transition-colors"
+                        >
+                          Delete
+                        </button>
+                      </div>
                     </div>
                   </div>
-                </div>
-              ))}
+                ))
+              )}
             </div>
           </div>
         </div>
