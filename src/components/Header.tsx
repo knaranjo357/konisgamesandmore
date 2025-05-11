@@ -38,8 +38,7 @@ const Header: React.FC = () => {
           <div className="hidden md:flex items-center space-x-10">
             <a href="#home" className="text-white/90 hover:text-purple-400 transition-all duration-300 text-sm font-medium hover:scale-105 transform">Home</a>
             <a href="#shop" className="text-white/90 hover:text-purple-400 transition-all duration-300 text-sm font-medium hover:scale-105 transform">Shop</a>
-            <a href="#suggestion" className="text-white/90 hover:text-purple-400 transition-all duration-300 text-sm font-medium hover:scale-105 transform">Suggestion Box</a>
-            <a href="#refund" className="text-white/90 hover:text-purple-400 transition-all duration-300 text-sm font-medium hover:scale-105 transform">Refund Policy</a>
+            
             <button 
               onClick={toggleCart}
               className="relative text-white/90 hover:text-purple-400 transition-all duration-300 transform hover:scale-110"

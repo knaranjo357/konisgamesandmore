@@ -24,9 +24,9 @@ function App() {
             <div className="min-h-screen bg-gray-900 text-white">
               <Header />
               <Cart />
-              <Hero />
               <ConsoleBrowser />
               <Shop />
+              <Hero />
               <BestSellingGames />
               <RequestForm />
               <InfoSection />

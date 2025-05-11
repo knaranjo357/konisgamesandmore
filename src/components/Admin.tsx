@@ -1,6 +1,7 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { Game } from '../types';
 import { fetchGames } from '../api/gameService';
+import { Search, X } from 'lucide-react';
 
 const Admin: React.FC = () => {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
@@ -19,6 +20,10 @@ const Admin: React.FC = () => {
     description: ''
   });
   const [error, setError] = useState('');
+  const [consoles, setConsoles] = useState<{ name: string; url: string }[]>([]);
+  const [showConsoleDropdown, setShowConsoleDropdown] = useState(false);
+  const [filteredConsoles, setFilteredConsoles] = useState<{ name: string; url: string }[]>([]);
+  const consoleInputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
     const token = localStorage.getItem('adminToken');
@@ -29,6 +34,32 @@ const Admin: React.FC = () => {
       setLoading(false);
     }
   }, []);
+
+  useEffect(() => {
+    if (games.length > 0) {
+      const uniqueConsoles = Array.from(new Set(games.map(game => ({
+        name: game.console,
+        url: game.console_url
+      })))).reduce((acc, curr) => {
+        if (!acc.find(c => c.name === curr.name)) {
+          acc.push(curr);
+        }
+        return acc;
+      }, [] as { name: string; url: string }[]);
+      setConsoles(uniqueConsoles);
+    }
+  }, [games]);
+
+  useEffect(() => {
+    if (formData.console) {
+      const filtered = consoles.filter(c => 
+        c.name.toLowerCase().includes(formData.console!.toLowerCase())
+      );
+      setFilteredConsoles(filtered);
+    } else {
+      setFilteredConsoles([]);
+    }
+  }, [formData.console, consoles]);
 
   const loadGames = async () => {
     try {
@@ -44,7 +75,7 @@ const Admin: React.FC = () => {
 
   const handleAuth = (e: React.FormEvent) => {
     e.preventDefault();
-    if (authForm.email === 'admin@konisgames.net' && authForm.password === 'konisgamesandmore') {
+    if (authForm.email === 'Jfpcontracting00@gmail.com' && authForm.password === 'Michigangobills#99') {
       localStorage.setItem('adminToken', 'dummy-token');
       setIsAuthenticated(true);
       loadGames();
@@ -56,7 +87,6 @@ const Admin: React.FC = () => {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     try {
-      // If no ID is provided, find the highest ID and increment by 1
       if (!formData.id) {
         const maxId = Math.max(...games.map(g => g.id), 0);
         formData.id = maxId + 1;
@@ -92,6 +122,26 @@ const Admin: React.FC = () => {
     }
   };
 
+  const handleDelete = async (rowNumber: number) => {
+    try {
+      const response = await fetch('https://proyecto-n8n.latiyp.easypanel.host/webhook/konisgamesandmore/games', {
+        method: 'DELETE',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ row_number: rowNumber }),
+      });
+
+      if (!response.ok) {
+        throw new Error('Failed to delete game');
+      }
+
+      await loadGames();
+    } catch (error) {
+      setError('Failed to delete game');
+    }
+  };
+
   const handleEdit = (game: Game) => {
     setFormData(game);
   };
@@ -102,6 +152,15 @@ const Admin: React.FC = () => {
       ...prev,
       [e.target.name]: value
     }));
+  };
+
+  const handleConsoleSelect = (console: { name: string; url: string }) => {
+    setFormData(prev => ({
+      ...prev,
+      console: console.name,
+      console_url: console.url
+    }));
+    setShowConsoleDropdown(false);
   };
 
   if (loading) {
@@ -221,16 +280,46 @@ const Admin: React.FC = () => {
                   />
                 </div>
 
-                <div>
+                <div className="relative">
                   <label className="block mb-2">Console</label>
-                  <input
-                    type="text"
-                    name="console"
-                    value={formData.console}
-                    onChange={handleChange}
-                    className="w-full bg-gray-700 p-3 rounded"
-                    required
-                  />
+                  <div className="relative">
+                    <input
+                      type="text"
+                      name="console"
+                      ref={consoleInputRef}
+                      value={formData.console}
+                      onChange={handleChange}
+                      onFocus={() => setShowConsoleDropdown(true)}
+                      className="w-full bg-gray-700 p-3 rounded"
+                      required
+                    />
+                    <Search className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 w-5 h-5" />
+                  </div>
+                  
+                  {showConsoleDropdown && filteredConsoles.length > 0 && (
+                    <div className="absolute z-10 w-full mt-1 bg-gray-700 rounded-lg shadow-lg max-h-60 overflow-auto">
+                      {filteredConsoles.map((console, index) => (
+                        <button
+                          key={index}
+                          type="button"
+                          className="w-full text-left px-4 py-2 hover:bg-gray-600 transition-colors"
+                          onClick={() => handleConsoleSelect(console)}
+                        >
+                          <div className="flex items-center gap-2">
+                            <img
+                              src={console.url}
+                              alt={console.name}
+                              className="w-8 h-8 object-cover rounded"
+                              onError={(e) => {
+                                (e.target as HTMLImageElement).src = '/logokonisgames.png';
+                              }}
+                            />
+                            <span>{console.name}</span>
+                          </div>
+                        </button>
+                      ))}
+                    </div>
+                  )}
                 </div>
               </div>
 
@@ -348,12 +437,20 @@ const Admin: React.FC = () => {
                     <h3 className="font-bold text-lg">{game.name}</h3>
                     <p className="text-gray-300">{game.console}</p>
                     <p className="text-purple-400">${game.price}</p>
-                    <button
-                      onClick={() => handleEdit(game)}
-                      className="mt-2 bg-purple-600 hover:bg-purple-700 px-4 py-2 rounded text-sm transition-colors"
-                    >
-                      Edit
-                    </button>
+                    <div className="flex gap-2 mt-2">
+                      <button
+                        onClick={() => handleEdit(game)}
+                        className="bg-purple-600 hover:bg-purple-700 px-4 py-2 rounded text-sm transition-colors"
+                      >
+                        Edit
+                      </button>
+                      <button
+                        onClick={() => handleDelete(game.row_number)}
+                        className="bg-red-600 hover:bg-red-700 px-4 py-2 rounded text-sm transition-colors"
+                      >
+                        Delete
+                      </button>
+                    </div>
                   </div>
                 </div>
               ))}
