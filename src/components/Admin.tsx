@@ -90,7 +90,7 @@ const Admin: React.FC = () => {
 
   const handleAuth = (e: React.FormEvent) => {
     e.preventDefault();
-    if (authForm.email === 'Jfpcontracting00@gmail.com' && authForm.password === 'Michigangobills#99') {
+    if (authForm.email === 'jfpcontracting00@gmail.com' && authForm.password === 'Michigangobills#99') {
       localStorage.setItem('adminToken', 'dummy-token');
       setIsAuthenticated(true);
       loadGames();
