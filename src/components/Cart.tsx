@@ -1,12 +1,13 @@
 import React from 'react';
 import { X, Plus, Minus } from 'lucide-react';
 import { useCart } from '../context/CartContext';
+import { PRICE_CATEGORIES } from '../types';
 
 const Cart: React.FC = () => {
   const { items, isCartOpen, toggleCart, updateQuantity, removeFromCart } = useCart();
 
   const total = items.reduce((sum, item) => {
-    return sum + (Number(item.price) * item.quantity);
+    return sum + (Number(item[item.selectedType]) * item.quantity);
   }, 0);
 
   if (!isCartOpen) return null;
@@ -29,7 +30,7 @@ const Cart: React.FC = () => {
         <>
           <div className="space-y-4 max-h-[calc(100vh-200px)] overflow-y-auto">
             {items.map(item => (
-              <div key={item.id} className="bg-gray-800 rounded-lg p-4 flex gap-4">
+              <div key={`${item.id}-${item.selectedType}`} className="bg-gray-800 rounded-lg p-4 flex gap-4">
                 <img
                   src={item.imageUrl}
                   alt={item.name}
@@ -38,23 +39,26 @@ const Cart: React.FC = () => {
                 <div className="flex-1">
                   <h3 className="text-white font-medium">{item.name}</h3>
                   <p className="text-gray-400 text-sm">{item.console}</p>
-                  <p className="text-purple-400 font-medium">${item.price}</p>
+                  <p className="text-gray-400 text-sm">
+                    {PRICE_CATEGORIES.find(cat => cat.value === item.selectedType)?.label}
+                  </p>
+                  <p className="text-purple-400 font-medium">${item[item.selectedType]}</p>
                   <div className="flex items-center gap-2 mt-2">
                     <button
-                      onClick={() => updateQuantity(item.id, item.quantity - 1)}
+                      onClick={() => updateQuantity(item.id, item.selectedType, item.quantity - 1)}
                       className="text-gray-400 hover:text-white"
                     >
                       <Minus className="w-4 h-4" />
                     </button>
                     <span className="text-white">{item.quantity}</span>
                     <button
-                      onClick={() => updateQuantity(item.id, item.quantity + 1)}
+                      onClick={() => updateQuantity(item.id, item.selectedType, item.quantity + 1)}
                       className="text-gray-400 hover:text-white"
                     >
                       <Plus className="w-4 h-4" />
                     </button>
                     <button
-                      onClick={() => removeFromCart(item.id)}
+                      onClick={() => removeFromCart(item.id, item.selectedType)}
                       className="ml-auto text-red-400 hover:text-red-300 text-sm"
                     >
                       Remove

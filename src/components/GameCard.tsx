@@ -1,6 +1,6 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { Star } from 'lucide-react';
-import { Game } from '../types';
+import { Game, PRICE_CATEGORIES, PriceCategory } from '../types';
 import { useCart } from '../context/CartContext';
 
 interface GameCardProps {
@@ -10,6 +10,7 @@ interface GameCardProps {
 
 const GameCard: React.FC<GameCardProps> = ({ game, bestSeller = false }) => {
   const { addToCart } = useCart();
+  const [selectedType, setSelectedType] = useState<PriceCategory>('game');
 
   const renderRating = (rating: number) => {
     const stars = [];
@@ -41,9 +42,21 @@ const GameCard: React.FC<GameCardProps> = ({ game, bestSeller = false }) => {
     return stars;
   };
 
+  const handleAddToCart = () => {
+    addToCart(game, selectedType);
+  };
+
+  const getCurrentPrice = () => {
+    return game[selectedType];
+  };
+
   return (
     <div className="bg-gray-800 rounded-xl overflow-hidden transition-all duration-300 hover:shadow-lg hover:shadow-purple-500/20 group">
-      
+      {bestSeller && (
+        <div className="bg-purple-600 text-white px-3 py-1 absolute top-3 left-3 rounded-full text-xs font-semibold z-10">
+          Best Seller
+        </div>
+      )}
       <div className="relative overflow-hidden h-48">
         <img 
           src={game.imageUrl} 
@@ -59,13 +72,23 @@ const GameCard: React.FC<GameCardProps> = ({ game, bestSeller = false }) => {
         <div className="text-sm text-purple-400 mb-1">{game.console}</div>
         <h3 className="text-xl font-semibold text-white mb-2 line-clamp-1">{game.name}</h3>
         <p className="text-gray-400 text-sm mb-4 line-clamp-2">{game.description}</p>
-        <div className="flex justify-between items-center">
-          <span className="text-lg font-bold text-white">${game.price}</span>
-          <button 
-            onClick={() => addToCart(game)}
-            className="bg-purple-600 hover:bg-purple-700 text-white px-4 py-2 rounded-lg transition-colors text-sm"
+        <div className="space-y-3">
+          <select
+            value={selectedType}
+            onChange={(e) => setSelectedType(e.target.value as PriceCategory)}
+            className="w-full bg-gray-700 text-white px-3 py-2 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500"
           >
-            Add to Cart
+            {PRICE_CATEGORIES.map(category => (
+              <option key={category.value} value={category.value}>
+                {category.label} - ${game[category.value]}
+              </option>
+            ))}
+          </select>
+          <button 
+            onClick={handleAddToCart}
+            className="w-full bg-purple-600 hover:bg-purple-700 text-white px-4 py-2 rounded-lg transition-colors text-sm font-medium"
+          >
+            Add to Cart - ${getCurrentPrice()}
           </button>
         </div>
       </div>
@@ -73,4 +96,4 @@ const GameCard: React.FC<GameCardProps> = ({ game, bestSeller = false }) => {
   );
 };
 
-export default GameCard
+export default GameCard;
