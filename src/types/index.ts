@@ -7,6 +7,9 @@ export interface Game {
   manual: string;
   cover_case_game: string;
   complete_with_game: string;
+  price1: string;
+  price2: string;
+  price3: string;
   imageUrl: string;
   imageUrl2: string;
   imageUrl3: string;
@@ -19,19 +22,19 @@ export interface Game {
 
 export interface CartItem extends Game {
   quantity: number;
-  selectedType: 'cover' | 'game' | 'manual' | 'cover_case_game' | 'complete_with_game';
+  selectedType: PriceCategory;
 }
 
 export interface CartContextType {
   items: CartItem[];
-  addToCart: (game: Game) => void;
-  removeFromCart: (gameId: number) => void;
-  updateQuantity: (gameId: number, quantity: number) => void;
+  addToCart: (game: Game, selectedType: PriceCategory) => void;
+  removeFromCart: (gameId: number, selectedType: PriceCategory) => void;
+  updateQuantity: (gameId: number, selectedType: PriceCategory, quantity: number) => void;
   isCartOpen: boolean;
   toggleCart: () => void;
 }
 
-export type PriceCategory = 'cover' | 'game' | 'manual' | 'cover_case_game' | 'complete_with_game';
+export type PriceCategory = 'cover' | 'game' | 'manual' | 'cover_case_game' | 'complete_with_game' | 'price1' | 'price2' | 'price3';
 
 export const PRICE_CATEGORIES: { value: PriceCategory; label: string }[] = [
   { value: 'cover', label: 'Cover Only' },
