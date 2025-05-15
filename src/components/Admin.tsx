@@ -24,7 +24,6 @@ const Admin: React.FC = () => {
     imageUrl3: '',
     console: '',
     console_url: '',
-    rating: 0,
     isBestSeller: false,
     description: ''
   });
@@ -90,6 +89,7 @@ const Admin: React.FC = () => {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     try {
+      // Calculate new ID if not editing
       if (!formData.id) {
         const maxId = Math.max(...games.map(g => g.id), 0);
         formData.id = maxId + 1;
@@ -109,6 +109,7 @@ const Admin: React.FC = () => {
 
       await loadGames();
       setFormData({
+        id: Math.max(...games.map(g => g.id), 0) + 1,
         name: '',
         cover: '',
         game: '',
@@ -123,7 +124,6 @@ const Admin: React.FC = () => {
         imageUrl3: '',
         console: '',
         console_url: '',
-        rating: 0,
         isBestSeller: false,
         description: ''
       });
@@ -160,6 +160,14 @@ const Admin: React.FC = () => {
     setFormData(game);
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
+
+  // Set initial ID for new game form
+  useEffect(() => {
+    if (!formData.id && games.length > 0) {
+      const maxId = Math.max(...games.map(g => g.id), 0);
+      setFormData(prev => ({ ...prev, id: maxId + 1 }));
+    }
+  }, [games, formData.id]);
 
   if (loading) {
     return (
