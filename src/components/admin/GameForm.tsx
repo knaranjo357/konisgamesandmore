@@ -2,6 +2,7 @@ import React, { useState, useRef, useEffect } from 'react';
 import { Game, PRICE_CATEGORIES } from '../../types';
 import { Search, Plus, Minus } from 'lucide-react';
 import PriceCategory from './PriceCategory';
+import ImageUpload from './ImageUpload';
 
 interface GameFormProps {
   formData: Partial<Game>;
@@ -22,14 +23,6 @@ const GameForm: React.FC<GameFormProps> = ({
   const [filteredConsoles, setFilteredConsoles] = useState<{ name: string; url: string }[]>([]);
   const consoleInputRef = useRef<HTMLInputElement>(null);
   const [showAdditionalImages, setShowAdditionalImages] = useState(false);
-  const [priceCategories, setPriceCategories] = useState(
-    PRICE_CATEGORIES.map(cat => ({
-      visible: Boolean(formData[cat.value]),
-      name: cat.label,
-      price: formData[cat.value] || '',
-      value: cat.value
-    }))
-  );
   const [customCategories, setCustomCategories] = useState([
     { visible: false, name: '', price: '' },
     { visible: false, name: '', price: '' },
@@ -55,18 +48,6 @@ const GameForm: React.FC<GameFormProps> = ({
     }
   }, [isEditing, formData.id]);
 
-  // Update price categories when formData changes
-  useEffect(() => {
-    setPriceCategories(
-      PRICE_CATEGORIES.map(cat => ({
-        visible: Boolean(formData[cat.value]),
-        name: cat.label,
-        price: formData[cat.value] || '',
-        value: cat.value
-      }))
-    );
-  }, [formData]);
-
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
     const value = e.target.type === 'checkbox' ? (e.target as HTMLInputElement).checked : e.target.value;
     setFormData({ ...formData, [e.target.name]: value });
@@ -79,28 +60,6 @@ const GameForm: React.FC<GameFormProps> = ({
       console_url: console.url
     });
     setShowConsoleDropdown(false);
-  };
-
-  const handlePriceCategoryChange = (index: number, field: 'price', value: string) => {
-    const updated = [...priceCategories];
-    updated[index] = { ...updated[index], [field]: value };
-    setPriceCategories(updated);
-    setFormData({
-      ...formData,
-      [updated[index].value]: value || null
-    });
-  };
-
-  const togglePriceCategory = (index: number) => {
-    const updated = [...priceCategories];
-    updated[index] = { ...updated[index], visible: !updated[index].visible };
-    setPriceCategories(updated);
-    if (!updated[index].visible) {
-      setFormData({
-        ...formData,
-        [updated[index].value]: null
-      });
-    }
   };
 
   const handleCustomCategoryChange = (index: number, field: 'name' | 'price', value: string) => {
@@ -128,9 +87,12 @@ const GameForm: React.FC<GameFormProps> = ({
     }
   };
 
+  // Sort consoles alphabetically
+  const sortedConsoles = [...consoles].sort((a, b) => a.name.localeCompare(b.name));
+
   React.useEffect(() => {
     if (formData.console) {
-      const filtered = consoles.filter(c => 
+      const filtered = sortedConsoles.filter(c => 
         c.name.toLowerCase().includes(formData.console!.toLowerCase())
       );
       setFilteredConsoles(filtered);
@@ -138,6 +100,17 @@ const GameForm: React.FC<GameFormProps> = ({
       setFilteredConsoles([]);
     }
   }, [formData.console, consoles]);
+
+  const handleImageUploadSuccess = (imageNumber: number, url: string) => {
+    setFormData({
+      ...formData,
+      [imageNumber === 1 ? 'imageUrl' : imageNumber === 2 ? 'imageUrl2' : 'imageUrl3']: url
+    });
+  };
+
+  const handleImageUploadError = (error: string) => {
+    console.error('Image upload error:', error);
+  };
 
   return (
     <form onSubmit={handleSubmit} className="space-y-6">
@@ -162,14 +135,15 @@ const GameForm: React.FC<GameFormProps> = ({
             onChange={handleChange}
             onFocus={() => setShowConsoleDropdown(true)}
             className="w-full bg-gray-700 p-3 rounded"
+            placeholder="Select or type console name"
             required
           />
           <Search className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 w-5 h-5" />
         </div>
         
-        {showConsoleDropdown && filteredConsoles.length > 0 && (
+        {showConsoleDropdown && (
           <div className="absolute z-10 w-full mt-1 bg-gray-700 rounded-lg shadow-lg max-h-60 overflow-auto">
-            {filteredConsoles.map((console, index) => (
+            {sortedConsoles.map((console, index) => (
               <button
                 key={index}
                 type="button"
@@ -229,32 +203,15 @@ const GameForm: React.FC<GameFormProps> = ({
         />
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-        <div>
-          <label className="block mb-2">Rating (0-5)</label>
-          <input
-            type="number"
-            name="rating"
-            min="0"
-            max="5"
-            step="0.5"
-            value={formData.rating}
-            onChange={handleChange}
-            className="w-full bg-gray-700 p-3 rounded"
-            required
-          />
-        </div>
-
-        <div className="flex items-center">
-          <input
-            type="checkbox"
-            name="isBestSeller"
-            checked={formData.isBestSeller}
-            onChange={handleChange}
-            className="w-5 h-5 bg-gray-700 rounded mr-2"
-          />
-          <label>Best Seller</label>
-        </div>
+      <div className="flex items-center">
+        <input
+          type="checkbox"
+          name="isBestSeller"
+          checked={formData.isBestSeller}
+          onChange={handleChange}
+          className="w-5 h-5 bg-gray-700 rounded mr-2"
+        />
+        <label>Best Seller</label>
       </div>
 
       <div>
@@ -269,90 +226,75 @@ const GameForm: React.FC<GameFormProps> = ({
         />
       </div>
 
-      <div>
-        <label className="block mb-2">Main Image URL</label>
-        <div className="space-y-4">
-          <div className="flex gap-4">
-            <input
-              type="url"
-              name="imageUrl"
-              value={formData.imageUrl}
-              onChange={handleChange}
-              placeholder="Main Image URL"
-              className="flex-1 bg-gray-700 p-3 rounded"
-              required
-            />
-            <button
-              type="button"
-              onClick={() => setShowAdditionalImages(!showAdditionalImages)}
-              className="bg-gray-700 px-4 rounded hover:bg-gray-600 transition-colors"
-            >
-              {showAdditionalImages ? <Minus size={20} /> : <Plus size={20} />}
-            </button>
-          </div>
+      <div className="space-y-4">
+        <label className="block mb-2">Images</label>
+        
+        {/* Main Image */}
+        <div className="space-y-2">
+          <label className="text-sm text-gray-400">Main Image</label>
+          <ImageUpload
+            id={formData.id || 0}
+            imageNumber={1}
+            currentUrl={formData.imageUrl || ''}
+            onUploadSuccess={(url) => handleImageUploadSuccess(1, url)}
+            onError={handleImageUploadError}
+          />
+        </div>
+
+        {/* Additional Images */}
+        <div>
+          <button
+            type="button"
+            onClick={() => setShowAdditionalImages(!showAdditionalImages)}
+            className="text-purple-400 hover:text-purple-300 flex items-center gap-2"
+          >
+            {showAdditionalImages ? <Minus size={16} /> : <Plus size={16} />}
+            {showAdditionalImages ? 'Hide Additional Images' : 'Add More Images'}
+          </button>
 
           {showAdditionalImages && (
-            <>
-              <input
-                type="url"
-                name="imageUrl2"
-                value={formData.imageUrl2}
-                onChange={handleChange}
-                placeholder="Second Image URL (optional)"
-                className="w-full bg-gray-700 p-3 rounded"
-              />
-              <input
-                type="url"
-                name="imageUrl3"
-                value={formData.imageUrl3}
-                onChange={handleChange}
-                placeholder="Third Image URL (optional)"
-                className="w-full bg-gray-700 p-3 rounded"
-              />
-            </>
+            <div className="space-y-4 mt-4">
+              <div className="space-y-2">
+                <label className="text-sm text-gray-400">Second Image</label>
+                <ImageUpload
+                  id={formData.id || 0}
+                  imageNumber={2}
+                  currentUrl={formData.imageUrl2 || ''}
+                  onUploadSuccess={(url) => handleImageUploadSuccess(2, url)}
+                  onError={handleImageUploadError}
+                />
+              </div>
+
+              <div className="space-y-2">
+                <label className="text-sm text-gray-400">Third Image</label>
+                <ImageUpload
+                  id={formData.id || 0}
+                  imageNumber={3}
+                  currentUrl={formData.imageUrl3 || ''}
+                  onUploadSuccess={(url) => handleImageUploadSuccess(3, url)}
+                  onError={handleImageUploadError}
+                />
+              </div>
+            </div>
           )}
         </div>
-        {formData.imageUrl && (
-          <div className="mt-2 flex gap-2">
-            <img
-              src={formData.imageUrl}
-              alt="Preview 1"
-              className="w-16 h-16 object-cover rounded"
-              onError={(e) => {
-                (e.target as HTMLImageElement).src = '/logokonisgames.png';
-              }}
-            />
-            {formData.imageUrl2 && (
-              <img
-                src={formData.imageUrl2}
-                alt="Preview 2"
-                className="w-16 h-16 object-cover rounded"
-                onError={(e) => {
-                  (e.target as HTMLImageElement).src = '/logokonisgames.png';
-                }}
-              />
-            )}
-            {formData.imageUrl3 && (
-              <img
-                src={formData.imageUrl3}
-                alt="Preview 3"
-                className="w-16 h-16 object-cover rounded"
-                onError={(e) => {
-                  (e.target as HTMLImageElement).src = '/logokonisgames.png';
-                }}
-              />
-            )}
-          </div>
-        )}
       </div>
 
       <div className="space-y-6">
-        {priceCategories.map((category, index) => (
+        <h3 className="text-lg font-medium">Price Categories</h3>
+        {PRICE_CATEGORIES.map((category, index) => (
           <PriceCategory
             key={index}
-            category={category}
-            onToggle={() => togglePriceCategory(index)}
-            onChange={(value) => handlePriceCategoryChange(index, 'price', value)}
+            category={{
+              name: category.label,
+              price: formData[category.value] || ''
+            }}
+            onChange={(value) => {
+              setFormData({
+                ...formData,
+                [category.value]: value
+              });
+            }}
           />
         ))}
 

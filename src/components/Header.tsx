@@ -26,12 +26,13 @@ const Header: React.FC = () => {
     >
       <nav className="max-w-7xl mx-auto px-4 py-2">
         <div className="flex justify-between items-center">
-          <a href="#home" className="flex items-center group">
+          <a href="#home" className="flex items-center gap-2 group">
             <img 
               src="/logokonisgames.png" 
               alt="Konis Games and More" 
               className="h-16 w-auto"
             />
+            <span className="text-white font-medium">Reproduction</span>
           </a>
           
           {/* Desktop Menu */}

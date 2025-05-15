@@ -98,9 +98,9 @@ const GameCard: React.FC<GameCardProps> = ({ game, bestSeller = false }) => {
           className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
         />
         <div className="absolute inset-0 bg-gradient-to-t from-gray-900 to-transparent opacity-60"></div>
-        <div className="absolute bottom-3 left-3 flex items-center space-x-1">
+        {/* <div className="absolute bottom-3 left-3 flex items-center space-x-1">
           {renderRating(Number(game.rating))}
-        </div>
+        </div> */}
       </div>
       <div className="p-4">
         <div className="text-sm text-purple-400 mb-1">{game.console}</div>

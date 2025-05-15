@@ -29,8 +29,9 @@ const ConsoleBrowser: React.FC<Props> = ({ onConsoleSelect }) => {
           }
         }, []);
 
-        // Get unique consoles
+        // Get unique consoles and sort alphabetically
         const uniqueConsoles = Array.from(new Set(uniqueGames.map(game => game.console)))
+          .sort((a, b) => a.localeCompare(b))
           .map(consoleName => ({
             name: consoleName,
             slug: consoleName.toLowerCase().replace(/\s+/g, '-'),

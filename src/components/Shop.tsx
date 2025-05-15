@@ -26,10 +26,14 @@ const Shop: React.FC = () => {
             return acc;
           }
         }, []);
-        setGames(uniqueGames);
+
+        // Sort games alphabetically by name
+        const sortedGames = uniqueGames.sort((a, b) => a.name.localeCompare(b.name));
+        setGames(sortedGames);
         
-        // Get unique consoles
-        const uniqueConsoles = Array.from(new Set(uniqueGames.map(game => game.console)));
+        // Get unique consoles and sort alphabetically
+        const uniqueConsoles = Array.from(new Set(uniqueGames.map(game => game.console)))
+          .sort((a, b) => a.localeCompare(b));
         setConsoles(['all', ...uniqueConsoles]);
         setError(null);
       } catch (err) {

@@ -1,41 +1,20 @@
 import React from 'react';
-import { Plus, Minus } from 'lucide-react';
 
 interface PriceCategoryProps {
   category: {
-    visible: boolean;
     name: string;
     price: string;
   };
-  onToggle: () => void;
   onChange: (value: string) => void;
 }
 
-const PriceCategory: React.FC<PriceCategoryProps> = ({ category, onToggle, onChange }) => {
+const PriceCategory: React.FC<PriceCategoryProps> = ({ category, onChange }) => {
   return (
     <div className="border-t border-gray-700 pt-4">
-      <div className="flex items-center justify-between mb-2">
-        <h3 className="text-lg font-medium">{category.name}</h3>
-        <button
-          type="button"
-          onClick={onToggle}
-          className="flex items-center gap-2 text-purple-400 hover:text-purple-300"
-        >
-          {category.visible ? (
-            <>
-              <Minus size={16} />
-              Hide
-            </>
-          ) : (
-            <>
-              <Plus size={16} />
-              Add
-            </>
-          )}
-        </button>
-      </div>
-
-      {category.visible && (
+      <div className="grid grid-cols-2 gap-4">
+        <div className="flex items-center">
+          <h3 className="text-lg font-medium">{category.name}</h3>
+        </div>
         <div>
           <input
             type="number"
@@ -46,7 +25,7 @@ const PriceCategory: React.FC<PriceCategoryProps> = ({ category, onToggle, onCha
             placeholder="Price"
           />
         </div>
-      )}
+      </div>
     </div>
   );
 };

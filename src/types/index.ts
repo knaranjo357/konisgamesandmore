@@ -15,7 +15,6 @@ export interface Game {
   imageUrl3: string;
   console: string;
   console_url: string;
-  rating: number;
   isBestSeller: boolean;
   description: string;
 }
