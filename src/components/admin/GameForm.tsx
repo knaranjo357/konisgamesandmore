@@ -21,6 +21,7 @@ const GameForm: React.FC<GameFormProps> = ({
   const [showConsoleDropdown, setShowConsoleDropdown] = useState(false);
   const [filteredConsoles, setFilteredConsoles] = useState<{ name: string; url: string }[]>([]);
   const consoleInputRef = useRef<HTMLInputElement>(null);
+  const [showAdditionalImages, setShowAdditionalImages] = useState(false);
   const [priceCategories, setPriceCategories] = useState(
     PRICE_CATEGORIES.map(cat => ({
       visible: Boolean(formData[cat.value]),
@@ -140,7 +141,7 @@ const GameForm: React.FC<GameFormProps> = ({
 
   return (
     <form onSubmit={handleSubmit} className="space-y-6">
-      <div className="sticky top-0 bg-gray-800 p-4 -mx-6 -mt-6 flex justify-between items-center border-b border-gray-700">
+      <div className="sticky top-0 bg-gray-800 p-4 -mx-6 -mt-6 flex justify-between items-center border-b border-gray-700 z-50">
         <h2 className="text-xl font-semibold">{isEditing ? 'Edit Game' : 'Add New Game'}</h2>
         <button
           type="submit"
@@ -148,92 +149,6 @@ const GameForm: React.FC<GameFormProps> = ({
         >
           {isEditing ? 'Update Game' : 'Add Game'}
         </button>
-      </div>
-
-      {isEditing && (
-        <div>
-          <label className="block mb-2">ID</label>
-          <input
-            type="number"
-            name="id"
-            value={formData.id || ''}
-            onChange={handleChange}
-            className="w-full bg-gray-700 p-3 rounded"
-            disabled
-          />
-        </div>
-      )}
-      
-      <div>
-        <label className="block mb-2">Name</label>
-        <input
-          type="text"
-          name="name"
-          value={formData.name}
-          onChange={handleChange}
-          className="w-full bg-gray-700 p-3 rounded"
-          required
-        />
-      </div>
-
-      <div className="space-y-6">
-        {priceCategories.map((category, index) => (
-          <PriceCategory
-            key={index}
-            category={category}
-            onToggle={() => togglePriceCategory(index)}
-            onChange={(value) => handlePriceCategoryChange(index, 'price', value)}
-          />
-        ))}
-
-        {customCategories.map((category, index) => (
-          <div key={index} className="border-t border-gray-700 pt-4">
-            <div className="flex items-center justify-between mb-2">
-              <h3 className="text-lg font-medium">Custom Category {index + 1}</h3>
-              <button
-                type="button"
-                onClick={() => toggleCustomCategory(index)}
-                className="flex items-center gap-2 text-purple-400 hover:text-purple-300"
-              >
-                {category.visible ? (
-                  <>
-                    <Minus size={16} />
-                    Hide
-                  </>
-                ) : (
-                  <>
-                    <Plus size={16} />
-                    Add
-                  </>
-                )}
-              </button>
-            </div>
-
-            {category.visible && (
-              <div className="grid grid-cols-2 gap-4">
-                <div>
-                  <input
-                    type="text"
-                    value={category.name}
-                    onChange={(e) => handleCustomCategoryChange(index, 'name', e.target.value)}
-                    className="w-full bg-gray-700 p-3 rounded"
-                    placeholder="Category name"
-                  />
-                </div>
-                <div>
-                  <input
-                    type="number"
-                    step="0.01"
-                    value={category.price}
-                    onChange={(e) => handleCustomCategoryChange(index, 'price', e.target.value)}
-                    className="w-full bg-gray-700 p-3 rounded"
-                    placeholder="Price"
-                  />
-                </div>
-              </div>
-            )}
-          </div>
-        ))}
       </div>
 
       <div className="relative">
@@ -293,7 +208,7 @@ const GameForm: React.FC<GameFormProps> = ({
             <img
               src={formData.console_url}
               alt="Console Preview"
-              className="w-32 h-32 object-cover rounded"
+              className="w-16 h-16 object-cover rounded"
               onError={(e) => {
                 (e.target as HTMLImageElement).src = '/logokonisgames.png';
               }}
@@ -301,70 +216,17 @@ const GameForm: React.FC<GameFormProps> = ({
           </div>
         )}
       </div>
-
+      
       <div>
-        <label className="block mb-2">Game Images URLs</label>
-        <div className="space-y-4">
-          <input
-            type="url"
-            name="imageUrl"
-            value={formData.imageUrl}
-            onChange={handleChange}
-            placeholder="Main Image URL"
-            className="w-full bg-gray-700 p-3 rounded"
-            required
-          />
-          <input
-            type="url"
-            name="imageUrl2"
-            value={formData.imageUrl2}
-            onChange={handleChange}
-            placeholder="Second Image URL"
-            className="w-full bg-gray-700 p-3 rounded"
-            required
-          />
-          <input
-            type="url"
-            name="imageUrl3"
-            value={formData.imageUrl3}
-            onChange={handleChange}
-            placeholder="Third Image URL"
-            className="w-full bg-gray-700 p-3 rounded"
-            required
-          />
-        </div>
-        {formData.imageUrl && (
-          <div className="mt-2 flex gap-2">
-            <img
-              src={formData.imageUrl}
-              alt="Preview 1"
-              className="w-32 h-32 object-cover rounded"
-              onError={(e) => {
-                (e.target as HTMLImageElement).src = '/logokonisgames.png';
-              }}
-            />
-            {formData.imageUrl2 && (
-              <img
-                src={formData.imageUrl2}
-                alt="Preview 2"
-                className="w-32 h-32 object-cover rounded"
-                onError={(e) => {
-                  (e.target as HTMLImageElement).src = '/logokonisgames.png';
-                }}
-              />
-            )}
-            {formData.imageUrl3 && (
-              <img
-                src={formData.imageUrl3}
-                alt="Preview 3"
-                className="w-32 h-32 object-cover rounded"
-                onError={(e) => {
-                  (e.target as HTMLImageElement).src = '/logokonisgames.png';
-                }}
-              />
-            )}
-          </div>
-        )}
+        <label className="block mb-2">Name</label>
+        <input
+          type="text"
+          name="name"
+          value={formData.name}
+          onChange={handleChange}
+          className="w-full bg-gray-700 p-3 rounded"
+          required
+        />
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -406,6 +268,161 @@ const GameForm: React.FC<GameFormProps> = ({
           required
         />
       </div>
+
+      <div>
+        <label className="block mb-2">Main Image URL</label>
+        <div className="space-y-4">
+          <div className="flex gap-4">
+            <input
+              type="url"
+              name="imageUrl"
+              value={formData.imageUrl}
+              onChange={handleChange}
+              placeholder="Main Image URL"
+              className="flex-1 bg-gray-700 p-3 rounded"
+              required
+            />
+            <button
+              type="button"
+              onClick={() => setShowAdditionalImages(!showAdditionalImages)}
+              className="bg-gray-700 px-4 rounded hover:bg-gray-600 transition-colors"
+            >
+              {showAdditionalImages ? <Minus size={20} /> : <Plus size={20} />}
+            </button>
+          </div>
+
+          {showAdditionalImages && (
+            <>
+              <input
+                type="url"
+                name="imageUrl2"
+                value={formData.imageUrl2}
+                onChange={handleChange}
+                placeholder="Second Image URL (optional)"
+                className="w-full bg-gray-700 p-3 rounded"
+              />
+              <input
+                type="url"
+                name="imageUrl3"
+                value={formData.imageUrl3}
+                onChange={handleChange}
+                placeholder="Third Image URL (optional)"
+                className="w-full bg-gray-700 p-3 rounded"
+              />
+            </>
+          )}
+        </div>
+        {formData.imageUrl && (
+          <div className="mt-2 flex gap-2">
+            <img
+              src={formData.imageUrl}
+              alt="Preview 1"
+              className="w-16 h-16 object-cover rounded"
+              onError={(e) => {
+                (e.target as HTMLImageElement).src = '/logokonisgames.png';
+              }}
+            />
+            {formData.imageUrl2 && (
+              <img
+                src={formData.imageUrl2}
+                alt="Preview 2"
+                className="w-16 h-16 object-cover rounded"
+                onError={(e) => {
+                  (e.target as HTMLImageElement).src = '/logokonisgames.png';
+                }}
+              />
+            )}
+            {formData.imageUrl3 && (
+              <img
+                src={formData.imageUrl3}
+                alt="Preview 3"
+                className="w-16 h-16 object-cover rounded"
+                onError={(e) => {
+                  (e.target as HTMLImageElement).src = '/logokonisgames.png';
+                }}
+              />
+            )}
+          </div>
+        )}
+      </div>
+
+      <div className="space-y-6">
+        {priceCategories.map((category, index) => (
+          <PriceCategory
+            key={index}
+            category={category}
+            onToggle={() => togglePriceCategory(index)}
+            onChange={(value) => handlePriceCategoryChange(index, 'price', value)}
+          />
+        ))}
+
+        {customCategories.map((category, index) => {
+          // Only show the next custom category if the previous one is visible
+          if (index > 0 && !customCategories[index - 1].visible) return null;
+          
+          return (
+            <div key={index} className="border-t border-gray-700 pt-4">
+              <div className="flex items-center justify-between mb-2">
+                <h3 className="text-lg font-medium">Custom Category</h3>
+                <button
+                  type="button"
+                  onClick={() => toggleCustomCategory(index)}
+                  className="flex items-center gap-2 text-purple-400 hover:text-purple-300"
+                >
+                  {category.visible ? (
+                    <>
+                      <Minus size={16} />
+                      Hide
+                    </>
+                  ) : (
+                    <>
+                      <Plus size={16} />
+                      Add
+                    </>
+                  )}
+                </button>
+              </div>
+
+              {category.visible && (
+                <div className="grid grid-cols-2 gap-4">
+                  <div>
+                    <input
+                      type="text"
+                      value={category.name}
+                      onChange={(e) => handleCustomCategoryChange(index, 'name', e.target.value)}
+                      className="w-full bg-gray-700 p-3 rounded"
+                      placeholder="Category name"
+                    />
+                  </div>
+                  <div>
+                    <input
+                      type="number"
+                      step="0.01"
+                      value={category.price}
+                      onChange={(e) => handleCustomCategoryChange(index, 'price', e.target.value)}
+                      className="w-full bg-gray-700 p-3 rounded"
+                      placeholder="Price"
+                    />
+                  </div>
+                </div>
+              )}
+            </div>
+          );
+        })}
+      </div>
+
+      {isEditing && (
+        <div className="mt-8 pt-6 border-t border-gray-700">
+          <label className="block mb-2 text-gray-400">ID</label>
+          <input
+            type="number"
+            name="id"
+            value={formData.id || ''}
+            className="w-full bg-gray-700 p-3 rounded"
+            disabled
+          />
+        </div>
+      )}
     </form>
   );
 };
