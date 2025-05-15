@@ -37,9 +37,9 @@ export interface CartContextType {
 export type PriceCategory = 'cover' | 'game' | 'manual' | 'cover_case_game' | 'complete_with_game' | 'price1' | 'price2' | 'price3';
 
 export const PRICE_CATEGORIES: { value: PriceCategory; label: string }[] = [
-  { value: 'cover', label: 'Cover Only' },
-  { value: 'game', label: 'Game Only' },
-  { value: 'manual', label: 'Manual Only' },
+  { value: 'cover', label: 'Cover' },
+  { value: 'game', label: 'Game' },
+  { value: 'manual', label: 'Manual' },
   { value: 'cover_case_game', label: 'Cover + Case + Game' },
   { value: 'complete_with_game', label: 'Complete with Game' }
 ];
