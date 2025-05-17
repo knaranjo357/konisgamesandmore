@@ -22,6 +22,7 @@ const GameForm: React.FC<GameFormProps> = ({
   const [filteredConsoles, setFilteredConsoles] = useState<{ name: string; url: string }[]>([]);
   const consoleInputRef = useRef<HTMLInputElement>(null);
   const [showAdditionalImages, setShowAdditionalImages] = useState(false);
+  const [errors, setErrors] = useState<{ [key: string]: string }>({});
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
     const value = e.target.type === 'checkbox' ? (e.target as HTMLInputElement).checked : e.target.value;
@@ -37,21 +38,72 @@ const GameForm: React.FC<GameFormProps> = ({
     setShowConsoleDropdown(false);
   };
 
+  const validatePriceCategory = (name: string, price: string): boolean => {
+    return (name === '' && price === '') || (name !== '' && price !== '');
+  };
+
   const handleCustomCategoryChange = (index: number, field: 'name' | 'price', value: string) => {
     const priceField = `price${index + 1}` as keyof Game;
     const currentValue = formData[priceField] || '';
     const [currentName, currentPrice] = currentValue.split('-');
     
+    let newName = currentName;
+    let newPrice = currentPrice;
+
     if (field === 'name') {
-      setFormData({
-        ...formData,
-        [priceField]: `${value}-${currentPrice || ''}`
-      });
+      newName = value;
     } else {
+      newPrice = value;
+    }
+
+    // Clear both values if both are empty
+    if (newName === '' && newPrice === '') {
       setFormData({
         ...formData,
-        [priceField]: `${currentName || ''}-${value}`
+        [priceField]: ''
       });
+      setErrors(prev => ({ ...prev, [priceField]: '' }));
+      return;
+    }
+
+    // Validate that both fields are filled if one is filled
+    if (newName === '' || newPrice === '') {
+      setErrors(prev => ({
+        ...prev,
+        [priceField]: 'Both category name and price are required'
+      }));
+    } else {
+      setErrors(prev => ({ ...prev, [priceField]: '' }));
+    }
+
+    setFormData({
+      ...formData,
+      [priceField]: `${newName}-${newPrice}`
+    });
+  };
+
+  const handleFormSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    
+    // Validate all price categories
+    let hasErrors = false;
+    const newErrors: { [key: string]: string } = {};
+
+    [1, 2, 3, 4, 5].forEach(index => {
+      const priceField = `price${index}` as keyof Game;
+      const value = formData[priceField] || '';
+      const [name, price] = value.split('-');
+
+      if ((name && !price) || (!name && price)) {
+        newErrors[priceField] = 'Both category name and price are required';
+        hasErrors = true;
+      }
+    });
+
+    setErrors(newErrors);
+
+    if (!hasErrors) {
+      handleSubmit(e);
     }
   };
 
@@ -80,7 +132,7 @@ const GameForm: React.FC<GameFormProps> = ({
   };
 
   return (
-    <form onSubmit={handleSubmit} className="space-y-6">
+    <form onSubmit={handleFormSubmit} className="space-y-6">
       <div className="sticky top-0 bg-gray-800 p-4 -mx-6 -mt-6 flex justify-between items-center border-b border-gray-700 z-50">
         <h2 className="text-xl font-semibold">{isEditing ? 'Edit Game' : 'Add New Game'}</h2>
         <button
@@ -252,31 +304,44 @@ const GameForm: React.FC<GameFormProps> = ({
 
       <div className="space-y-6">
         <h3 className="text-lg font-medium">Price Categories</h3>
-        {[1, 2, 3, 4, 5].map((index) => (
-          <div key={index} className="border-t border-gray-700 pt-4">
-            <div className="grid grid-cols-2 gap-4">
-              <div>
-                <input
-                  type="text"
-                  value={formData[`price${index}` as keyof Game]?.split('-')[0] || ''}
-                  onChange={(e) => handleCustomCategoryChange(index - 1, 'name', e.target.value)}
-                  className="w-full bg-gray-700 p-3 rounded"
-                  placeholder="Category name"
-                />
+        {[1, 2, 3, 4, 5].map((index) => {
+          const priceField = `price${index}` as keyof Game;
+          const error = errors[priceField];
+          const [categoryName, categoryPrice] = (formData[priceField] || '-').split('-');
+
+          return (
+            <div key={index} className="border-t border-gray-700 pt-4">
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <input
+                    type="text"
+                    value={categoryName || ''}
+                    onChange={(e) => handleCustomCategoryChange(index - 1, 'name', e.target.value)}
+                    className={`w-full bg-gray-700 p-3 rounded ${
+                      error ? 'border border-red-500' : ''
+                    }`}
+                    placeholder="Category name"
+                  />
+                </div>
+                <div>
+                  <input
+                    type="number"
+                    step="0.01"
+                    value={categoryPrice || ''}
+                    onChange={(e) => handleCustomCategoryChange(index - 1, 'price', e.target.value)}
+                    className={`w-full bg-gray-700 p-3 rounded ${
+                      error ? 'border border-red-500' : ''
+                    }`}
+                    placeholder="Price"
+                  />
+                </div>
               </div>
-              <div>
-                <input
-                  type="number"
-                  step="0.01"
-                  value={formData[`price${index}` as keyof Game]?.split('-')[1] || ''}
-                  onChange={(e) => handleCustomCategoryChange(index - 1, 'price', e.target.value)}
-                  className="w-full bg-gray-700 p-3 rounded"
-                  placeholder="Price"
-                />
-              </div>
+              {error && (
+                <p className="text-red-500 text-sm mt-1">{error}</p>
+              )}
             </div>
-          </div>
-        ))}
+          );
+        })}
       </div>
     </form>
   );
