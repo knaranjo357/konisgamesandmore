@@ -2,7 +2,8 @@ import React, { useState, useEffect } from 'react';
 import { fetchGames } from '../api/gameService';
 import { Game } from '../types';
 import GameCard from './GameCard';
-import { Search } from 'lucide-react';
+import { Search, ArrowUpDown } from 'lucide-react';
+import GameModal from './GameModal';
 
 const Shop: React.FC = () => {
   const [games, setGames] = useState<Game[]>([]);
@@ -11,13 +12,15 @@ const Shop: React.FC = () => {
   const [selectedConsole, setSelectedConsole] = useState<string>('all');
   const [searchQuery, setSearchQuery] = useState('');
   const [consoles, setConsoles] = useState<string[]>([]);
+  const [selectedGame, setSelectedGame] = useState<Game | null>(null);
+  const [sortBy, setSortBy] = useState<'name' | 'price'>('name');
+  const [sortOrder, setSortOrder] = useState<'asc' | 'desc'>('asc');
 
   useEffect(() => {
     const loadGames = async () => {
       try {
         setLoading(true);
         const allGames = await fetchGames();
-        // Remove duplicates based on id
         const uniqueGames = allGames.reduce((acc: Game[], current) => {
           const x = acc.find(item => item.id === current.id);
           if (!x) {
@@ -27,11 +30,8 @@ const Shop: React.FC = () => {
           }
         }, []);
 
-        // Sort games alphabetically by name
-        const sortedGames = uniqueGames.sort((a, b) => a.name.localeCompare(b.name));
-        setGames(sortedGames);
+        setGames(uniqueGames);
         
-        // Get unique consoles and sort alphabetically
         const uniqueConsoles = Array.from(new Set(uniqueGames.map(game => game.console)))
           .sort((a, b) => a.localeCompare(b));
         setConsoles(['all', ...uniqueConsoles]);
@@ -47,13 +47,49 @@ const Shop: React.FC = () => {
     loadGames();
   }, []);
 
+  const getLowestPrice = (game: Game): number => {
+    const prices = ['price1', 'price2', 'price3', 'price4', 'price5']
+      .map(field => {
+        const value = game[field as keyof Game];
+        if (value) {
+          const [, price] = value.split('-');
+          return Number(price);
+        }
+        return Infinity;
+      })
+      .filter(price => price !== Infinity);
+
+    return Math.min(...prices);
+  };
+
+  const sortGames = (games: Game[]) => {
+    return [...games].sort((a, b) => {
+      if (sortBy === 'name') {
+        const comparison = a.name.localeCompare(b.name);
+        return sortOrder === 'asc' ? comparison : -comparison;
+      } else {
+        const priceA = getLowestPrice(a);
+        const priceB = getLowestPrice(b);
+        const comparison = priceA - priceB;
+        return sortOrder === 'asc' ? comparison : -comparison;
+      }
+    });
+  };
+
+  const toggleSort = (type: 'name' | 'price') => {
+    if (sortBy === type) {
+      setSortOrder(current => current === 'asc' ? 'desc' : 'asc');
+    } else {
+      setSortBy(type);
+      setSortOrder('asc');
+    }
+  };
+
   const filteredGames = games.filter(game => {
-    // Strict console matching
     if (selectedConsole !== 'all' && game.console !== selectedConsole) {
       return false;
     }
 
-    // Search filtering
     if (searchQuery) {
       const query = searchQuery.toLowerCase();
       return (
@@ -65,6 +101,8 @@ const Shop: React.FC = () => {
 
     return true;
   });
+
+  const sortedGames = sortGames(filteredGames);
 
   return (
     <section id="shop" className="py-16 bg-gray-800">
@@ -94,6 +132,27 @@ const Shop: React.FC = () => {
                 </option>
               ))}
             </select>
+
+            <div className="flex gap-2">
+              <button
+                onClick={() => toggleSort('name')}
+                className={`flex items-center gap-2 px-4 py-3 rounded-lg transition-colors ${
+                  sortBy === 'name' ? 'bg-purple-600 text-white' : 'bg-gray-700 text-gray-300'
+                }`}
+              >
+                Name
+                <ArrowUpDown className="w-4 h-4" />
+              </button>
+              <button
+                onClick={() => toggleSort('price')}
+                className={`flex items-center gap-2 px-4 py-3 rounded-lg transition-colors ${
+                  sortBy === 'price' ? 'bg-purple-600 text-white' : 'bg-gray-700 text-gray-300'
+                }`}
+              >
+                Price
+                <ArrowUpDown className="w-4 h-4" />
+              </button>
+            </div>
           </div>
         </div>
       </div>
@@ -111,20 +170,31 @@ const Shop: React.FC = () => {
           </div>
         )}
 
-        {!loading && !error && filteredGames.length === 0 && (
+        {!loading && !error && sortedGames.length === 0 && (
           <div className="text-center text-gray-400 py-12">
             No games found matching your criteria
           </div>
         )}
 
-        {!loading && !error && filteredGames.length > 0 && (
+        {!loading && !error && sortedGames.length > 0 && (
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8">
-            {filteredGames.map(game => (
-              <GameCard key={game.id} game={game} />
+            {sortedGames.map(game => (
+              <GameCard 
+                key={game.id} 
+                game={game}
+                onClick={() => setSelectedGame(game)}
+              />
             ))}
           </div>
         )}
       </div>
+
+      {selectedGame && (
+        <GameModal
+          game={selectedGame}
+          onClose={() => setSelectedGame(null)}
+        />
+      )}
     </section>
   );
 };

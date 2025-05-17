@@ -1,7 +1,6 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { Game, PRICE_CATEGORIES } from '../../types';
-import { Search, Plus, Minus } from 'lucide-react';
-import PriceCategory from './PriceCategory';
+import { Game } from '../../types';
+import { Search } from 'lucide-react';
 import ImageUpload from './ImageUpload';
 
 interface GameFormProps {
@@ -23,30 +22,6 @@ const GameForm: React.FC<GameFormProps> = ({
   const [filteredConsoles, setFilteredConsoles] = useState<{ name: string; url: string }[]>([]);
   const consoleInputRef = useRef<HTMLInputElement>(null);
   const [showAdditionalImages, setShowAdditionalImages] = useState(false);
-  const [customCategories, setCustomCategories] = useState([
-    { visible: false, name: '', price: '' },
-    { visible: false, name: '', price: '' },
-    { visible: false, name: '', price: '' }
-  ]);
-
-  // Initialize custom categories when editing
-  useEffect(() => {
-    if (isEditing) {
-      const newCustomCategories = [...customCategories];
-      ['price1', 'price2', 'price3'].forEach((field, index) => {
-        const value = formData[field as keyof Game];
-        if (value && typeof value === 'string') {
-          const [name, price] = value.split('-');
-          newCustomCategories[index] = {
-            visible: true,
-            name,
-            price
-          };
-        }
-      });
-      setCustomCategories(newCustomCategories);
-    }
-  }, [isEditing, formData.id]);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
     const value = e.target.type === 'checkbox' ? (e.target as HTMLInputElement).checked : e.target.value;
@@ -63,31 +38,23 @@ const GameForm: React.FC<GameFormProps> = ({
   };
 
   const handleCustomCategoryChange = (index: number, field: 'name' | 'price', value: string) => {
-    const updated = [...customCategories];
-    updated[index] = { ...updated[index], [field]: value };
-    setCustomCategories(updated);
+    const priceField = `price${index + 1}` as keyof Game;
+    const currentValue = formData[priceField] || '';
+    const [currentName, currentPrice] = currentValue.split('-');
     
-    if (updated[index].name && updated[index].price) {
+    if (field === 'name') {
       setFormData({
         ...formData,
-        [`price${index + 1}`]: `${updated[index].name}-${updated[index].price}`
+        [priceField]: `${value}-${currentPrice || ''}`
+      });
+    } else {
+      setFormData({
+        ...formData,
+        [priceField]: `${currentName || ''}-${value}`
       });
     }
   };
 
-  const toggleCustomCategory = (index: number) => {
-    const updated = [...customCategories];
-    updated[index] = { ...updated[index], visible: !updated[index].visible };
-    setCustomCategories(updated);
-    if (!updated[index].visible) {
-      setFormData({
-        ...formData,
-        [`price${index + 1}`]: null
-      });
-    }
-  };
-
-  // Sort consoles alphabetically
   const sortedConsoles = [...consoles].sort((a, b) => a.name.localeCompare(b.name));
 
   React.useEffect(() => {
@@ -123,6 +90,12 @@ const GameForm: React.FC<GameFormProps> = ({
           {isEditing ? 'Update Game' : 'Add Game'}
         </button>
       </div>
+
+      <input
+        type="hidden"
+        name="id"
+        value={formData.id || ''}
+      />
 
       <div className="relative">
         <label className="block mb-2">Console</label>
@@ -229,7 +202,6 @@ const GameForm: React.FC<GameFormProps> = ({
       <div className="space-y-4">
         <label className="block mb-2">Images</label>
         
-        {/* Main Image */}
         <div className="space-y-2">
           <label className="text-sm text-gray-400">Main Image</label>
           <ImageUpload
@@ -241,14 +213,12 @@ const GameForm: React.FC<GameFormProps> = ({
           />
         </div>
 
-        {/* Additional Images */}
         <div>
           <button
             type="button"
             onClick={() => setShowAdditionalImages(!showAdditionalImages)}
             className="text-purple-400 hover:text-purple-300 flex items-center gap-2"
           >
-            {showAdditionalImages ? <Minus size={16} /> : <Plus size={16} />}
             {showAdditionalImages ? 'Hide Additional Images' : 'Add More Images'}
           </button>
 
@@ -282,89 +252,32 @@ const GameForm: React.FC<GameFormProps> = ({
 
       <div className="space-y-6">
         <h3 className="text-lg font-medium">Price Categories</h3>
-        {PRICE_CATEGORIES.map((category, index) => (
-          <PriceCategory
-            key={index}
-            category={{
-              name: category.label,
-              price: formData[category.value] || ''
-            }}
-            onChange={(value) => {
-              setFormData({
-                ...formData,
-                [category.value]: value
-              });
-            }}
-          />
-        ))}
-
-        {customCategories.map((category, index) => {
-          // Only show the next custom category if the previous one is visible
-          if (index > 0 && !customCategories[index - 1].visible) return null;
-          
-          return (
-            <div key={index} className="border-t border-gray-700 pt-4">
-              <div className="flex items-center justify-between mb-2">
-                <h3 className="text-lg font-medium">Custom Category</h3>
-                <button
-                  type="button"
-                  onClick={() => toggleCustomCategory(index)}
-                  className="flex items-center gap-2 text-purple-400 hover:text-purple-300"
-                >
-                  {category.visible ? (
-                    <>
-                      <Minus size={16} />
-                      Hide
-                    </>
-                  ) : (
-                    <>
-                      <Plus size={16} />
-                      Add
-                    </>
-                  )}
-                </button>
+        {[1, 2, 3, 4, 5].map((index) => (
+          <div key={index} className="border-t border-gray-700 pt-4">
+            <div className="grid grid-cols-2 gap-4">
+              <div>
+                <input
+                  type="text"
+                  value={formData[`price${index}` as keyof Game]?.split('-')[0] || ''}
+                  onChange={(e) => handleCustomCategoryChange(index - 1, 'name', e.target.value)}
+                  className="w-full bg-gray-700 p-3 rounded"
+                  placeholder="Category name"
+                />
               </div>
-
-              {category.visible && (
-                <div className="grid grid-cols-2 gap-4">
-                  <div>
-                    <input
-                      type="text"
-                      value={category.name}
-                      onChange={(e) => handleCustomCategoryChange(index, 'name', e.target.value)}
-                      className="w-full bg-gray-700 p-3 rounded"
-                      placeholder="Category name"
-                    />
-                  </div>
-                  <div>
-                    <input
-                      type="number"
-                      step="0.01"
-                      value={category.price}
-                      onChange={(e) => handleCustomCategoryChange(index, 'price', e.target.value)}
-                      className="w-full bg-gray-700 p-3 rounded"
-                      placeholder="Price"
-                    />
-                  </div>
-                </div>
-              )}
+              <div>
+                <input
+                  type="number"
+                  step="0.01"
+                  value={formData[`price${index}` as keyof Game]?.split('-')[1] || ''}
+                  onChange={(e) => handleCustomCategoryChange(index - 1, 'price', e.target.value)}
+                  className="w-full bg-gray-700 p-3 rounded"
+                  placeholder="Price"
+                />
+              </div>
             </div>
-          );
-        })}
+          </div>
+        ))}
       </div>
-
-      {isEditing && (
-        <div className="mt-8 pt-6 border-t border-gray-700">
-          <label className="block mb-2 text-gray-400">ID</label>
-          <input
-            type="number"
-            name="id"
-            value={formData.id || ''}
-            className="w-full bg-gray-700 p-3 rounded"
-            disabled
-          />
-        </div>
-      )}
     </form>
   );
 };

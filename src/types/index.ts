@@ -2,14 +2,6 @@ export interface Game {
   id: number;
   row_number: number;
   name: string;
-  cover: string;
-  game: string;
-  manual: string;
-  cover_case_game: string;
-  complete_with_game: string;
-  price1: string;
-  price2: string;
-  price3: string;
   imageUrl: string;
   imageUrl2: string;
   imageUrl3: string;
@@ -17,6 +9,11 @@ export interface Game {
   console_url: string;
   isBestSeller: boolean;
   description: string;
+  price1: string;
+  price2: string;
+  price3: string;
+  price4: string;
+  price5: string;
 }
 
 export interface CartItem extends Game {
@@ -33,12 +30,12 @@ export interface CartContextType {
   toggleCart: () => void;
 }
 
-export type PriceCategory = 'cover' | 'game' | 'manual' | 'cover_case_game' | 'complete_with_game' | 'price1' | 'price2' | 'price3';
+export type PriceCategory = 'price1' | 'price2' | 'price3' | 'price4' | 'price5';
 
 export const PRICE_CATEGORIES: { value: PriceCategory; label: string }[] = [
-  { value: 'cover', label: 'Cover' },
-  { value: 'game', label: 'Game' },
-  { value: 'manual', label: 'Manual' },
-  { value: 'cover_case_game', label: 'Cover + Case + Game' },
-  { value: 'complete_with_game', label: 'Complete with Game' }
+  { value: 'price1', label: 'Category 1' },
+  { value: 'price2', label: 'Category 2' },
+  { value: 'price3', label: 'Category 3' },
+  { value: 'price4', label: 'Category 4' },
+  { value: 'price5', label: 'Category 5' }
 ];
