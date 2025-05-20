@@ -193,9 +193,8 @@ const GameForm: React.FC<GameFormProps> = ({
       </div>
 
       <div>
-        <label className="block mb-2">Console Image URL</label>
         <input
-          type="url"
+          type="hidden"
           name="console_url"
           value={formData.console_url}
           onChange={handleChange}

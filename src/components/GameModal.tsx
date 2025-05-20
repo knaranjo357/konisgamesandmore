@@ -78,10 +78,7 @@ const GameModal: React.FC<GameModalProps> = ({ game, onClose }) => {
                 <p className="text-purple-400">{game.console}</p>
               </div>
 
-              <div className="mb-6">
-                <h3 className="text-lg font-semibold text-white mb-2">Description</h3>
-                <p className="text-gray-300">{game.description}</p>
-              </div>
+
 
               <div className="mb-6">
                 <h3 className="text-lg font-semibold text-white mb-4">Add to Cart</h3>
@@ -136,6 +133,10 @@ const GameModal: React.FC<GameModalProps> = ({ game, onClose }) => {
                   </div>
                 </div>
               )}
+              <div className="mb-6">
+                <h3 className="text-lg font-semibold text-white mb-2">Description</h3>
+                <p className="text-gray-300">{game.description}</p>
+              </div>
             </div>
           </div>
         </div>
