@@ -38,6 +38,7 @@ const Header: React.FC = () => {
           {/* Desktop Menu */}
           <div className="hidden md:flex items-center space-x-10">
             <a href="#home" className="text-white/90 hover:text-purple-400 transition-all duration-300 text-sm font-medium hover:scale-105 transform">Home</a>
+            <a href="#consoles" className="text-white/90 hover:text-purple-400 transition-all duration-300 text-sm font-medium hover:scale-105 transform">Consoles</a>
             <a href="#shop" className="text-white/90 hover:text-purple-400 transition-all duration-300 text-sm font-medium hover:scale-105 transform">Shop</a>
             
             <button 
@@ -98,20 +99,8 @@ const Header: React.FC = () => {
             >
               Shop
             </a>
-            <a 
-              href="#suggestion" 
-              className="text-white/90 hover:text-purple-400 transition-all duration-300 py-2 border-b border-gray-800/50 hover:pl-2"
-              onClick={() => setIsMenuOpen(false)}
-            >
-              Suggestion Box
-            </a>
-            <a 
-              href="#refund" 
-              className="text-white/90 hover:text-purple-400 transition-all duration-300 py-2 hover:pl-2"
-              onClick={() => setIsMenuOpen(false)}
-            >
-              Refund Policy
-            </a>
+            
+            
           </nav>
         </div>
       )}

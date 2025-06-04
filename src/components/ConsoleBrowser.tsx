@@ -62,7 +62,7 @@ const ConsoleBrowser: React.FC<Props> = ({ onConsoleSelect }) => {
   };
 
   return (
-    <section className="py-16 bg-gray-900">
+    <section className="py-16 bg-gray-900" id="consoles">
       <div className="container mx-auto px-4">
         <h2 className="text-3xl font-bold mb-12 text-center text-white">Browse by Console</h2>
         
