@@ -2,7 +2,7 @@ import { Game } from '../types';
 
 export const fetchGames = async (): Promise<Game[]> => {
   try {
-    const response = await fetch('https://n8n.alliasoft.com/webhook-test/konisgamesandmore/games', {
+    const response = await fetch('https://n8n.alliasoft.com/webhook/konisgamesandmore/games', {
       headers: {
         'Accept': 'application/json',
         'Content-Type': 'application/json'
