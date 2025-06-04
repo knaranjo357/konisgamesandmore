@@ -95,7 +95,7 @@ const Admin: React.FC = () => {
         formData.id = maxId + 1;
       }
 
-      const response = await fetch('https://proyecto-n8n.latiyp.easypanel.host/webhook/konisgamesandmore/games', {
+      const response = await fetch('https://n8n.alliasoft.com/webhook/konisgamesandmore/games', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -136,7 +136,7 @@ const Admin: React.FC = () => {
   const handleDelete = async (rowNumber: number) => {
     if (window.confirm('Are you sure you want to delete this game?')) {
       try {
-        const response = await fetch('https://proyecto-n8n.latiyp.easypanel.host/webhook/konisgamesandmore/games', {
+        const response = await fetch('https://n8n.alliasoft.com/webhook/konisgamesandmore/games', {
           method: 'DELETE',
           headers: {
             'Content-Type': 'application/json',
