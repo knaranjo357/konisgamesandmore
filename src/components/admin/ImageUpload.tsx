@@ -37,7 +37,7 @@ const ImageUpload: React.FC<ImageUploadProps> = ({
       
       headers.append("Content-Type", file.type);
 
-      const response = await fetch("https://proyecto-n8n.latiyp.easypanel.host/webhook/upload_image", {
+      const response = await fetch("https://n8n.alliasoft.com/webhook-test/upload_image", {
         method: "POST",
         headers: headers,
         body: file
