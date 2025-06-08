@@ -60,6 +60,9 @@ const GameCard: React.FC<GameCardProps> = ({ game, bestSeller = false, onClick }
   if (availableCategories.length === 0) return null;
 
   const images = [game.imageUrl, game.imageUrl2, game.imageUrl3].filter(url => url && url !== '');
+  if (images.length === 0) {
+    images.push('https://konisgamesandmore.com/logokonisgames.png');
+  }
 
   return (
     <div 
