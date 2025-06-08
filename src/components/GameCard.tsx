@@ -69,7 +69,7 @@ const GameCard: React.FC<GameCardProps> = ({ game, bestSeller = false, onClick }
       <ImageCarousel images={images} alt={game.name} />
       <div className="p-4">
         <div className="text-sm text-purple-400 mb-1">{game.console}</div>
-        <h3 className="text-xl font-semibold text-white mb-2 line-clamp-1">{game.name}</h3>
+        <h3 className="text-[1rem] font-semibold text-white mb-2 line-clamp-1">{game.name}</h3>
         <p className="text-gray-400 text-sm mb-4 line-clamp-2">{game.description}</p>
         <div className="space-y-3">
           <select

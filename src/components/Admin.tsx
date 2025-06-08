@@ -3,6 +3,8 @@ import { Game } from '../types';
 import { fetchGames } from '../api/gameService';
 import GameForm from './admin/GameForm';
 import GamesList from './admin/GamesList';
+import CustomersSection from './admin/CustomersSection';
+import { Users, Package } from 'lucide-react';
 
 const Admin: React.FC = () => {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
@@ -29,6 +31,7 @@ const Admin: React.FC = () => {
   });
   const [error, setError] = useState('');
   const [consoles, setConsoles] = useState<{ name: string; url: string }[]>([]);
+  const [activeTab, setActiveTab] = useState<'games' | 'customers'>('games');
 
   useEffect(() => {
     const token = localStorage.getItem('adminToken');
@@ -236,32 +239,64 @@ const Admin: React.FC = () => {
           </button>
         </div>
 
+        {/* Tab Toggle */}
+        <div className="flex mb-8">
+          <div className="bg-gray-800 rounded-lg p-1 flex">
+            <button
+              onClick={() => setActiveTab('games')}
+              className={`flex items-center gap-2 px-6 py-3 rounded-md font-medium transition-all duration-200 ${
+                activeTab === 'games'
+                  ? 'bg-purple-600 text-white shadow-lg'
+                  : 'text-gray-400 hover:text-white hover:bg-gray-700'
+              }`}
+            >
+              <Package className="w-5 h-5" />
+              Games Catalog
+            </button>
+            <button
+              onClick={() => setActiveTab('customers')}
+              className={`flex items-center gap-2 px-6 py-3 rounded-md font-medium transition-all duration-200 ${
+                activeTab === 'customers'
+                  ? 'bg-purple-600 text-white shadow-lg'
+                  : 'text-gray-400 hover:text-white hover:bg-gray-700'
+              }`}
+            >
+              <Users className="w-5 h-5" />
+              Customers
+            </button>
+          </div>
+        </div>
+
         {error && (
           <div className="bg-red-500/20 text-red-200 p-4 rounded mb-8">
             {error}
           </div>
         )}
         
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-          <div className="bg-gray-800 p-6 rounded-lg">
-            <GameForm
-              formData={formData}
-              setFormData={setFormData}
-              handleSubmit={handleSubmit}
-              consoles={consoles}
-              isEditing={!!formData.id}
-            />
-          </div>
+        {activeTab === 'games' ? (
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+            <div className="bg-gray-800 p-6 rounded-lg">
+              <GameForm
+                formData={formData}
+                setFormData={setFormData}
+                handleSubmit={handleSubmit}
+                consoles={consoles}
+                isEditing={!!formData.id}
+              />
+            </div>
 
-          <div className="bg-gray-800 p-6 rounded-lg">
-            <GamesList
-              games={games}
-              onEdit={handleEdit}
-              onDelete={handleDelete}
-              consoles={consoles.map(c => c.name)}
-            />
+            <div className="bg-gray-800 p-6 rounded-lg">
+              <GamesList
+                games={games}
+                onEdit={handleEdit}
+                onDelete={handleDelete}
+                consoles={consoles.map(c => c.name)}
+              />
+            </div>
           </div>
-        </div>
+        ) : (
+          <CustomersSection />
+        )}
       </div>
     </div>
   );
