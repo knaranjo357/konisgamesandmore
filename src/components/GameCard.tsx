@@ -63,7 +63,6 @@ const GameCard: React.FC<GameCardProps> = ({ game, bestSeller = false, onClick }
   if (images.length === 0) {
     images.push('https://konisgamesandmore.com/logokonisgames.png');
   }
-
   return (
     <div 
       className="bg-gray-800 rounded-xl overflow-hidden transition-all duration-300 hover:shadow-lg hover:shadow-purple-500/20 group cursor-pointer"

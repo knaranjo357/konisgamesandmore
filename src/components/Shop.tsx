@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { fetchGames, fetchGamesByConsole } from '../api/gameService';
 import { Game } from '../types';
 import GameCard from './GameCard';
-import { Search, ArrowUpDown, ChevronLeft, ChevronRight } from 'lucide-react';
+import { Search, ArrowUpDown, ChevronLeft, ChevronRight, Filter, X } from 'lucide-react';
 import GameModal from './GameModal';
 
 const Shop: React.FC = () => {
@@ -15,6 +15,7 @@ const Shop: React.FC = () => {
   const [selectedGame, setSelectedGame] = useState<Game | null>(null);
   const [sortBy, setSortBy] = useState<'name' | 'price'>('name');
   const [sortOrder, setSortOrder] = useState<'asc' | 'desc'>('asc');
+  const [showMobileFilters, setShowMobileFilters] = useState(false);
   
   // Pagination states - Set initial items per page to 24
   const [currentPage, setCurrentPage] = useState(1);
@@ -124,6 +125,8 @@ const Shop: React.FC = () => {
     setSelectedConsole(console);
     setCurrentPage(1);
     await loadGamesByConsole(console);
+    // Close mobile filters after selection
+    setShowMobileFilters(false);
   };
 
   const filteredGames = games.filter(game => {
@@ -165,21 +168,109 @@ const Shop: React.FC = () => {
     setCurrentPage(1);
   };
 
+  const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setSearchQuery(e.target.value);
+    setCurrentPage(1);
+    // Close mobile filters when typing
+    setShowMobileFilters(false);
+  };
+
   return (
     <section id="shop" className="py-16 bg-gray-800">
       <div className="sticky top-20 z-40 bg-gray-800 py-4 shadow-lg">
-        <div className="container mx-auto px-4">          
-          <div className="flex flex-col md:flex-row gap-4">
+        <div className="container mx-auto px-4">
+          {/* Mobile Filter Toggle Button */}
+          <div className="md:hidden mb-4">
+            <div className="flex gap-4">
+              <div className="relative flex-1">
+                <input
+                  type="text"
+                  placeholder="Search games..."
+                  className="w-full bg-gray-700 text-white px-4 py-3 pr-12 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500"
+                  value={searchQuery}
+                  onChange={handleSearchChange}
+                />
+                <Search className="absolute right-4 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
+              </div>
+              <button
+                onClick={() => setShowMobileFilters(!showMobileFilters)}
+                className="bg-purple-600 hover:bg-purple-700 text-white px-4 py-3 rounded-lg transition-colors flex items-center gap-2"
+              >
+                {showMobileFilters ? <X className="w-5 h-5" /> : <Filter className="w-5 h-5" />}
+                <span className="hidden sm:inline">
+                  {showMobileFilters ? 'Close' : 'Filters'}
+                </span>
+              </button>
+            </div>
+
+            {/* Mobile Filters Dropdown */}
+            {showMobileFilters && (
+              <div className="mt-4 bg-gray-700 rounded-lg p-4 space-y-4 animate-fadeIn">
+                <div>
+                  <label className="block text-sm font-medium text-gray-300 mb-2">Console</label>
+                  <select
+                    value={selectedConsole}
+                    onChange={(e) => handleConsoleChange(e.target.value)}
+                    className="w-full bg-gray-600 text-white px-4 py-3 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500"
+                  >
+                    {consoles.map(console => (
+                      <option key={console} value={console}>
+                        {console === 'all' ? 'All Consoles' : console}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium text-gray-300 mb-2">Sort By</label>
+                  <div className="flex gap-2">
+                    <button
+                      onClick={() => toggleSort('name')}
+                      className={`flex-1 flex items-center justify-center gap-2 px-4 py-3 rounded-lg transition-colors ${
+                        sortBy === 'name' ? 'bg-purple-600 text-white' : 'bg-gray-600 text-gray-300'
+                      }`}
+                    >
+                      Name
+                      <ArrowUpDown className="w-4 h-4" />
+                    </button>
+                    <button
+                      onClick={() => toggleSort('price')}
+                      className={`flex-1 flex items-center justify-center gap-2 px-4 py-3 rounded-lg transition-colors ${
+                        sortBy === 'price' ? 'bg-purple-600 text-white' : 'bg-gray-600 text-gray-300'
+                      }`}
+                    >
+                      Price
+                      <ArrowUpDown className="w-4 h-4" />
+                    </button>
+                  </div>
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium text-gray-300 mb-2">Items per page</label>
+                  <select
+                    value={itemsPerPage}
+                    onChange={(e) => handleItemsPerPageChange(Number(e.target.value))}
+                    className="w-full bg-gray-600 text-white px-4 py-3 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500"
+                  >
+                    <option value={12}>12</option>
+                    <option value={24}>24</option>
+                    <option value={48}>48</option>
+                    <option value={96}>96</option>
+                  </select>
+                </div>
+              </div>
+            )}
+          </div>
+
+          {/* Desktop Filters */}
+          <div className="hidden md:flex flex-col md:flex-row gap-4">
             <div className="relative flex-1">
               <input
                 type="text"
                 placeholder="Search games..."
                 className="w-full bg-gray-700 text-white px-4 py-3 pr-12 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500"
                 value={searchQuery}
-                onChange={(e) => {
-                  setSearchQuery(e.target.value);
-                  setCurrentPage(1);
-                }}
+                onChange={handleSearchChange}
               />
               <Search className="absolute right-4 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
             </div>
@@ -221,7 +312,7 @@ const Shop: React.FC = () => {
 
           {/* Pagination Controls */}
           <div className="flex flex-col sm:flex-row justify-between items-center mt-4 gap-4">
-            <div className="flex items-center gap-4">
+            <div className="hidden md:flex items-center gap-4">
               <span className="text-gray-300 text-sm">Items per page:</span>
               <select
                 value={itemsPerPage}
