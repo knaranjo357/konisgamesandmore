@@ -28,8 +28,8 @@ function App() {
               <RequestForm />
               <InfoSection />
               <Faq />
-              <Footer />
-            </div>
+{/*               <Footer />
+            </div> */}
           } />
         </Routes>
       </CartProvider>
