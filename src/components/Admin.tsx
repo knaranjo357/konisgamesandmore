@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Game } from '../types';
-import { fetchGames } from '../api/gameService';
+import { fetchGames, fetchGamesByConsole } from '../api/gameService';
 import GameForm from './admin/GameForm';
 import GamesList from './admin/GamesList';
 import CustomersSection from './admin/CustomersSection';
@@ -10,6 +10,7 @@ const Admin: React.FC = () => {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [games, setGames] = useState<Game[]>([]);
   const [loading, setLoading] = useState(true);
+  const [gamesLoading, setGamesLoading] = useState(false);
   const [authForm, setAuthForm] = useState({ email: '', password: '' });
   const [formData, setFormData] = useState<Partial<Game>>({
     name: '',
@@ -60,6 +61,7 @@ const Admin: React.FC = () => {
 
   const loadGames = async () => {
     try {
+      setGamesLoading(true);
       const data = await fetchGames();
       const uniqueGames = data.reduce((acc: Game[], current) => {
         const x = acc.find(item => item.id === current.id);
@@ -75,6 +77,34 @@ const Admin: React.FC = () => {
       setError('Failed to load games');
     } finally {
       setLoading(false);
+      setGamesLoading(false);
+    }
+  };
+
+  const loadGamesByConsole = async (console: string) => {
+    if (console === 'all') {
+      await loadGames();
+      return;
+    }
+
+    try {
+      setGamesLoading(true);
+      const consoleGames = await fetchGamesByConsole(console);
+      const uniqueGames = consoleGames.reduce((acc: Game[], current) => {
+        const x = acc.find(item => item.id === current.id);
+        if (!x) {
+          return acc.concat([current]);
+        } else {
+          return acc;
+        }
+      }, []);
+      setGames(uniqueGames);
+      setError('');
+    } catch (error) {
+      console.error('Error loading games by console:', error);
+      setError('Failed to load games for this console');
+    } finally {
+      setGamesLoading(false);
     }
   };
 
@@ -291,6 +321,8 @@ const Admin: React.FC = () => {
                 onEdit={handleEdit}
                 onDelete={handleDelete}
                 consoles={consoles.map(c => c.name)}
+                onConsoleChange={loadGamesByConsole}
+                loading={gamesLoading}
               />
             </div>
           </div>

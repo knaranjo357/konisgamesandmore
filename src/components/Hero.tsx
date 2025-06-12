@@ -6,14 +6,14 @@ const Hero: React.FC = () => {
       id="home" 
       className="relative pt-32 pb-20 bg-gradient-to-b from-gray-900 via-gray-900 to-gray-800"
     >
-      <div className="absolute inset-0 bg-[url('https://images.pexels.com/photos/442576/pexels-photo-442576.jpeg')] bg-cover bg-center opacity-5"></div>
-      <div className="absolute inset-0 bg-gradient-to-b from-gray-900/50 to-gray-900"></div>
+      <div className="absolute inset-0 bg-[url('https://th.bing.com/th/id/OIP.olR48hFBmoMi6F-4Ng551wHaE7?w=237&h=180&c=7&r=0&o=7&dpr=1.3&pid=1.7&rm=3')] bg-cover bg-center"></div>
+      <div className="absolute inset-0 bg-gradient-to-b from-gray-900/70 to-gray-900/90"></div>
       
       <div className="container mx-auto px-4 relative">
         <div className="flex flex-col justify-center items-center text-center py-24">
           
           <h1 className="text-5xl md:text-7xl font-bold mb-12 bg-gradient-to-r from-purple-400 via-purple-500 to-purple-600 bg-clip-text text-transparent animate-gradient">
-            Retro Gaming Paradise
+            Konis Games and More
           </h1>
 
           <div className="flex flex-col md:flex-row justify-center items-center gap-6">

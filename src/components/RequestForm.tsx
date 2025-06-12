@@ -33,14 +33,56 @@ const RequestForm: React.FC = () => {
     setFormData(prev => ({ ...prev, [name]: value }));
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const sendEmail = async (formData: any) => {
+    try {
+      const emailData = {
+        to: 'jfpcontracting00@gmail.com',
+        subject: `New Game Request: ${formData.gameTitle}`,
+        message: `
+New game request received:
+
+Name: ${formData.name}
+Email: ${formData.email}
+Game/Manual Title: ${formData.gameTitle}
+Console: ${formData.console}
+Additional Information: ${formData.additionalInfo || 'None provided'}
+
+Submitted at: ${new Date().toLocaleString()}
+        `.trim()
+      };
+
+      // Send email using your existing webhook
+      const response = await fetch('https://n8n.alliasoft.com/webhook/konisgamesandmore/send-email', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(emailData),
+      });
+
+      if (!response.ok) {
+        throw new Error('Failed to send email');
+      }
+
+      console.log('Email sent successfully');
+    } catch (error) {
+      console.error('Error sending email:', error);
+      // Don't throw error to prevent form submission failure
+    }
+  };
+
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setSubmitting(true);
     
-    // Simulate API call
-    setTimeout(() => {
+    try {
+      // Send email automatically
+      await sendEmail(formData);
+      
+      // Simulate form processing
+      await new Promise(resolve => setTimeout(resolve, 1000));
+      
       console.log('Form submitted:', formData);
-      setSubmitting(false);
       setSubmitted(true);
       setFormData({
         name: '',
@@ -52,7 +94,11 @@ const RequestForm: React.FC = () => {
       
       // Reset submitted state after 3 seconds
       setTimeout(() => setSubmitted(false), 3000);
-    }, 1000);
+    } catch (error) {
+      console.error('Error submitting form:', error);
+    } finally {
+      setSubmitting(false);
+    }
   };
 
   return (

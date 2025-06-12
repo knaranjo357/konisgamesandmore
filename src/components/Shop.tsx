@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { fetchGames, fetchGamesByConsole } from '../api/gameService';
 import { Game } from '../types';
 import GameCard from './GameCard';
-import { Search, ArrowUpDown, ChevronLeft, ChevronRight, Filter, X } from 'lucide-react';
+import { Search, ArrowUpDown, Filter, X } from 'lucide-react';
 import GameModal from './GameModal';
 
 const Shop: React.FC = () => {
@@ -17,15 +17,25 @@ const Shop: React.FC = () => {
   const [sortOrder, setSortOrder] = useState<'asc' | 'desc'>('asc');
   const [showMobileFilters, setShowMobileFilters] = useState(false);
   
-  // Pagination states - Set initial items per page to 24
-  const [currentPage, setCurrentPage] = useState(1);
+  // Alphabetical pagination states
+  const [selectedLetter, setSelectedLetter] = useState<string>('all');
   const [itemsPerPage, setItemsPerPage] = useState(24);
+
+  // Generate alphabet array
+  const alphabet = ['all', ...Array.from({ length: 26 }, (_, i) => String.fromCharCode(65 + i))];
 
   useEffect(() => {
     loadGames();
   }, []);
 
-  // Remove the separate effect for console changes - handle it in the function
+  // Function to scroll to shop section
+  const scrollToShop = () => {
+    const shopElement = document.getElementById('shop');
+    if (shopElement) {
+      shopElement.scrollIntoView({ behavior: 'smooth' });
+    }
+  };
+
   const loadGames = async () => {
     try {
       setLoading(true);
@@ -55,7 +65,6 @@ const Shop: React.FC = () => {
 
   const loadGamesByConsole = async (console: string) => {
     if (console === 'all') {
-      // Reload all games when switching back to "all"
       await loadGames();
       return;
     }
@@ -73,7 +82,7 @@ const Shop: React.FC = () => {
       }, []);
 
       setGames(uniqueGames);
-      setCurrentPage(1); // Reset to first page when console changes
+      setSelectedLetter('all'); // Reset letter filter when console changes
       setError(null);
     } catch (err) {
       setError('Failed to load games for this console. Please try again later.');
@@ -119,14 +128,21 @@ const Shop: React.FC = () => {
       setSortBy(type);
       setSortOrder('asc');
     }
+    scrollToShop();
+    setShowMobileFilters(false);
   };
 
   const handleConsoleChange = async (console: string) => {
     setSelectedConsole(console);
-    setCurrentPage(1);
     await loadGamesByConsole(console);
-    // Close mobile filters after selection
     setShowMobileFilters(false);
+    scrollToShop();
+  };
+
+  const handleLetterChange = (letter: string) => {
+    setSelectedLetter(letter);
+    setShowMobileFilters(false);
+    scrollToShop();
   };
 
   const filteredGames = games.filter(game => {
@@ -136,11 +152,20 @@ const Shop: React.FC = () => {
 
     if (searchQuery) {
       const query = searchQuery.toLowerCase();
-      return (
+      if (!(
         game.name.toLowerCase().includes(query) ||
         game.console.toLowerCase().includes(query) ||
         game.description.toLowerCase().includes(query)
-      );
+      )) {
+        return false;
+      }
+    }
+
+    if (selectedLetter !== 'all') {
+      const firstLetter = game.name.charAt(0).toUpperCase();
+      if (firstLetter !== selectedLetter) {
+        return false;
+      }
     }
 
     return true;
@@ -148,32 +173,20 @@ const Shop: React.FC = () => {
 
   const sortedGames = sortGames(filteredGames);
 
-  // Pagination logic
-  const totalPages = Math.ceil(sortedGames.length / itemsPerPage);
-  const startIndex = (currentPage - 1) * itemsPerPage;
-  const endIndex = startIndex + itemsPerPage;
-  const currentGames = sortedGames.slice(startIndex, endIndex);
-
-  const handlePageChange = (page: number) => {
-    setCurrentPage(page);
-    // Scroll to top of shop section
-    const shopElement = document.getElementById('shop');
-    if (shopElement) {
-      shopElement.scrollIntoView({ behavior: 'smooth' });
-    }
+  const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setSearchQuery(e.target.value);
+    setShowMobileFilters(false);
+    scrollToShop();
   };
 
   const handleItemsPerPageChange = (items: number) => {
     setItemsPerPage(items);
-    setCurrentPage(1);
+    setShowMobileFilters(false);
+    scrollToShop();
   };
 
-  const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setSearchQuery(e.target.value);
-    setCurrentPage(1);
-    // Close mobile filters when typing
-    setShowMobileFilters(false);
-  };
+  // Calculate displayed games based on items per page
+  const displayedGames = sortedGames.slice(0, itemsPerPage);
 
   return (
     <section id="shop" className="py-16 bg-gray-800">
@@ -222,6 +235,21 @@ const Shop: React.FC = () => {
                 </div>
 
                 <div>
+                  <label className="block text-sm font-medium text-gray-300 mb-2">Filter by Letter</label>
+                  <select
+                    value={selectedLetter}
+                    onChange={(e) => handleLetterChange(e.target.value)}
+                    className="w-full bg-gray-600 text-white px-4 py-3 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500"
+                  >
+                    {alphabet.map(letter => (
+                      <option key={letter} value={letter}>
+                        {letter === 'all' ? 'All Letters' : letter}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+
+                <div>
                   <label className="block text-sm font-medium text-gray-300 mb-2">Sort By</label>
                   <div className="flex gap-2">
                     <button
@@ -246,7 +274,7 @@ const Shop: React.FC = () => {
                 </div>
 
                 <div>
-                  <label className="block text-sm font-medium text-gray-300 mb-2">Items per page</label>
+                  <label className="block text-sm font-medium text-gray-300 mb-2">Items to show</label>
                   <select
                     value={itemsPerPage}
                     onChange={(e) => handleItemsPerPageChange(Number(e.target.value))}
@@ -256,6 +284,7 @@ const Shop: React.FC = () => {
                     <option value={24}>24</option>
                     <option value={48}>48</option>
                     <option value={96}>96</option>
+                    <option value={sortedGames.length}>All ({sortedGames.length})</option>
                   </select>
                 </div>
               </div>
@@ -263,128 +292,91 @@ const Shop: React.FC = () => {
           </div>
 
           {/* Desktop Filters */}
-          <div className="hidden md:flex flex-col md:flex-row gap-4">
-            <div className="relative flex-1">
-              <input
-                type="text"
-                placeholder="Search games..."
-                className="w-full bg-gray-700 text-white px-4 py-3 pr-12 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500"
-                value={searchQuery}
-                onChange={handleSearchChange}
-              />
-              <Search className="absolute right-4 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
-            </div>
-            
-            <select
-              id="console-select"
-              value={selectedConsole}
-              onChange={(e) => handleConsoleChange(e.target.value)}
-              className="bg-gray-700 text-white px-4 py-3 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500 md:w-48"
-            >
-              {consoles.map(console => (
-                <option key={console} value={console}>
-                  {console === 'all' ? 'All Consoles' : console}
-                </option>
-              ))}
-            </select>
-
-            <div className="flex gap-2">
-              <button
-                onClick={() => toggleSort('name')}
-                className={`flex items-center gap-2 px-4 py-3 rounded-lg transition-colors ${
-                  sortBy === 'name' ? 'bg-purple-600 text-white' : 'bg-gray-700 text-gray-300'
-                }`}
-              >
-                Name
-                <ArrowUpDown className="w-4 h-4" />
-              </button>
-              <button
-                onClick={() => toggleSort('price')}
-                className={`flex items-center gap-2 px-4 py-3 rounded-lg transition-colors ${
-                  sortBy === 'price' ? 'bg-purple-600 text-white' : 'bg-gray-700 text-gray-300'
-                }`}
-              >
-                Price
-                <ArrowUpDown className="w-4 h-4" />
-              </button>
-            </div>
-          </div>
-
-          {/* Pagination Controls */}
-          <div className="flex flex-col sm:flex-row justify-between items-center mt-4 gap-4">
-            <div className="hidden md:flex items-center gap-4">
-              <span className="text-gray-300 text-sm">Items per page:</span>
+          <div className="hidden md:flex flex-col gap-4">
+            <div className="flex gap-4">
+              <div className="relative flex-1">
+                <input
+                  type="text"
+                  placeholder="Search games..."
+                  className="w-full bg-gray-700 text-white px-4 py-3 pr-12 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500"
+                  value={searchQuery}
+                  onChange={handleSearchChange}
+                />
+                <Search className="absolute right-4 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
+              </div>
+              
               <select
-                value={itemsPerPage}
-                onChange={(e) => handleItemsPerPageChange(Number(e.target.value))}
-                className="bg-gray-700 text-white px-3 py-2 rounded focus:outline-none focus:ring-2 focus:ring-purple-500"
+                id="console-select"
+                value={selectedConsole}
+                onChange={(e) => handleConsoleChange(e.target.value)}
+                className="bg-gray-700 text-white px-4 py-3 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500 md:w-48"
               >
-                <option value={12}>12</option>
-                <option value={24}>24</option>
-                <option value={48}>48</option>
-                <option value={96}>96</option>
+                {consoles.map(console => (
+                  <option key={console} value={console}>
+                    {console === 'all' ? 'All Consoles' : console}
+                  </option>
+                ))}
               </select>
-            </div>
 
-            {totalPages > 1 && (
-              <div className="flex items-center gap-2">
+              <div className="flex gap-2">
                 <button
-                  onClick={() => handlePageChange(currentPage - 1)}
-                  disabled={currentPage === 1}
-                  className={`p-2 rounded ${
-                    currentPage === 1
-                      ? 'bg-gray-700 text-gray-500 cursor-not-allowed'
-                      : 'bg-gray-700 text-white hover:bg-gray-600'
+                  onClick={() => toggleSort('name')}
+                  className={`flex items-center gap-2 px-4 py-3 rounded-lg transition-colors ${
+                    sortBy === 'name' ? 'bg-purple-600 text-white' : 'bg-gray-700 text-gray-300'
                   }`}
                 >
-                  <ChevronLeft className="w-4 h-4" />
+                  Name
+                  <ArrowUpDown className="w-4 h-4" />
                 </button>
-
-                <div className="flex items-center gap-1">
-                  {Array.from({ length: Math.min(5, totalPages) }, (_, i) => {
-                    let pageNum;
-                    if (totalPages <= 5) {
-                      pageNum = i + 1;
-                    } else if (currentPage <= 3) {
-                      pageNum = i + 1;
-                    } else if (currentPage >= totalPages - 2) {
-                      pageNum = totalPages - 4 + i;
-                    } else {
-                      pageNum = currentPage - 2 + i;
-                    }
-
-                    return (
-                      <button
-                        key={pageNum}
-                        onClick={() => handlePageChange(pageNum)}
-                        className={`px-3 py-2 rounded text-sm ${
-                          currentPage === pageNum
-                            ? 'bg-purple-600 text-white'
-                            : 'bg-gray-700 text-gray-300 hover:bg-gray-600'
-                        }`}
-                      >
-                        {pageNum}
-                      </button>
-                    );
-                  })}
-                </div>
-
                 <button
-                  onClick={() => handlePageChange(currentPage + 1)}
-                  disabled={currentPage === totalPages}
-                  className={`p-2 rounded ${
-                    currentPage === totalPages
-                      ? 'bg-gray-700 text-gray-500 cursor-not-allowed'
-                      : 'bg-gray-700 text-white hover:bg-gray-600'
+                  onClick={() => toggleSort('price')}
+                  className={`flex items-center gap-2 px-4 py-3 rounded-lg transition-colors ${
+                    sortBy === 'price' ? 'bg-purple-600 text-white' : 'bg-gray-700 text-gray-300'
                   }`}
                 >
-                  <ChevronRight className="w-4 h-4" />
+                  Price
+                  <ArrowUpDown className="w-4 h-4" />
                 </button>
               </div>
-            )}
+            </div>
 
-            <div className="text-gray-300 text-sm">
-              Showing {Math.min(startIndex + 1, sortedGames.length)}-{Math.min(endIndex, sortedGames.length)} of {sortedGames.length} games
+            {/* Alphabetical Filter */}
+            <div className="flex flex-wrap gap-1">
+              {alphabet.map(letter => (
+                <button
+                  key={letter}
+                  onClick={() => handleLetterChange(letter)}
+                  className={`px-3 py-2 rounded text-sm transition-colors ${
+                    selectedLetter === letter
+                      ? 'bg-purple-600 text-white'
+                      : 'bg-gray-700 text-gray-300 hover:bg-gray-600'
+                  }`}
+                >
+                  {letter === 'all' ? 'All' : letter}
+                </button>
+              ))}
+            </div>
+
+            {/* Items per page and info */}
+            <div className="flex justify-between items-center">
+              <div className="flex items-center gap-4">
+                <span className="text-gray-300 text-sm">Items to show:</span>
+                <select
+                  value={itemsPerPage}
+                  onChange={(e) => handleItemsPerPageChange(Number(e.target.value))}
+                  className="bg-gray-700 text-white px-3 py-2 rounded focus:outline-none focus:ring-2 focus:ring-purple-500"
+                >
+                  <option value={12}>12</option>
+                  <option value={24}>24</option>
+                  <option value={48}>48</option>
+                  <option value={96}>96</option>
+                  <option value={sortedGames.length}>All ({sortedGames.length})</option>
+                </select>
+              </div>
+
+              <div className="text-gray-300 text-sm">
+                Showing {Math.min(displayedGames.length, sortedGames.length)} of {sortedGames.length} games
+              </div>
             </div>
           </div>
         </div>
@@ -403,15 +395,15 @@ const Shop: React.FC = () => {
           </div>
         )}
 
-        {!loading && !error && currentGames.length === 0 && (
+        {!loading && !error && displayedGames.length === 0 && (
           <div className="text-center text-gray-400 py-12">
             No games found matching your criteria
           </div>
         )}
 
-        {!loading && !error && currentGames.length > 0 && (
+        {!loading && !error && displayedGames.length > 0 && (
           <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-4">
-            {currentGames.map(game => (
+            {displayedGames.map(game => (
               <GameCard 
                 key={game.id} 
                 game={game}
@@ -421,65 +413,22 @@ const Shop: React.FC = () => {
           </div>
         )}
 
-        {/* Bottom Pagination */}
-        {!loading && !error && totalPages > 1 && (
-          <div className="flex justify-center mt-8">
-            <div className="flex items-center gap-2">
-              <button
-                onClick={() => handlePageChange(currentPage - 1)}
-                disabled={currentPage === 1}
-                className={`p-2 rounded ${
-                  currentPage === 1
-                    ? 'bg-gray-700 text-gray-500 cursor-not-allowed'
-                    : 'bg-gray-700 text-white hover:bg-gray-600'
-                }`}
-              >
-                <ChevronLeft className="w-4 h-4" />
-              </button>
-
-              <div className="flex items-center gap-1">
-                {Array.from({ length: Math.min(5, totalPages) }, (_, i) => {
-                  let pageNum;
-                  if (totalPages <= 5) {
-                    pageNum = i + 1;
-                  } else if (currentPage <= 3) {
-                    pageNum = i + 1;
-                  } else if (currentPage >= totalPages - 2) {
-                    pageNum = totalPages - 4 + i;
-                  } else {
-                    pageNum = currentPage - 2 + i;
-                  }
-
-                  return (
-                    <button
-                      key={pageNum}
-                      onClick={() => handlePageChange(pageNum)}
-                      className={`px-3 py-2 rounded text-sm ${
-                        currentPage === pageNum
-                          ? 'bg-purple-600 text-white'
-                          : 'bg-gray-700 text-gray-300 hover:bg-gray-600'
-                      }`}
-                    >
-                      {pageNum}
-                    </button>
-                  );
-                })}
-              </div>
-
-              <button
-                onClick={() => handlePageChange(currentPage + 1)}
-                disabled={currentPage === totalPages}
-                className={`p-2 rounded ${
-                  currentPage === totalPages
-                    ? 'bg-gray-700 text-gray-500 cursor-not-allowed'
-                    : 'bg-gray-700 text-white hover:bg-gray-600'
-                }`}
-              >
-                <ChevronRight className="w-4 h-4" />
-              </button>
-            </div>
+        {/* Show more button if there are more games */}
+        {!loading && !error && sortedGames.length > displayedGames.length && (
+          <div className="text-center mt-8">
+            <button
+              onClick={() => setItemsPerPage(sortedGames.length)}
+              className="bg-purple-600 hover:bg-purple-700 text-white px-6 py-3 rounded-lg transition-colors"
+            >
+              Show All {sortedGames.length} Games
+            </button>
           </div>
         )}
+
+        {/* Mobile info */}
+        <div className="md:hidden text-center text-gray-300 text-sm mt-4">
+          Showing {Math.min(displayedGames.length, sortedGames.length)} of {sortedGames.length} games
+        </div>
       </div>
 
       {selectedGame && (

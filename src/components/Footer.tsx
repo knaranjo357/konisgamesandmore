@@ -20,7 +20,6 @@ const Footer: React.FC = () => {
               <li><a href="#home" className="hover:text-purple-400 transition-colors">Home</a></li>
               <li><a href="#shop" className="hover:text-purple-400 transition-colors">Shop</a></li>
               <li><a href="#suggestion" className="hover:text-purple-400 transition-colors">Suggestion Box</a></li>
-              <li><a href="#" className="hover:text-purple-400 transition-colors">My Account</a></li>
               <li><a href="#refund" className="hover:text-purple-400 transition-colors">Refund & Returns Policy</a></li>
             </ul>
           </div>
@@ -42,11 +41,9 @@ const Footer: React.FC = () => {
           <div>
             <h4 className="text-white font-semibold mb-4">Contact Us</h4>
             <address className="not-italic">
-              <p className="mb-2">123 Gaming Street, Retro City, RC 12345</p>
-              <p className="mb-2">(555) 123-4567</p>
               <p className="mb-4">
-                <a href="mailto:info@konisgamesandmore.com" className="text-purple-400 hover:text-purple-300">
-                  info@konisgamesandmore.com
+                <a href="mailto:jfpcontracting00@gmail.com" className="text-purple-400 hover:text-purple-300">
+                  jfpcontracting00@gmail.com
                 </a>
               </p>
             </address>
