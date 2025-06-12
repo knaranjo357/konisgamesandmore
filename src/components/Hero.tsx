@@ -18,29 +18,16 @@ const Hero: React.FC = () => {
 
           <div className="flex flex-col md:flex-row justify-center items-center gap-6">
             
-            <a 
-              href="#consoles" 
-              className="group relative overflow-hidden bg-purple-600 hover:bg-purple-700 text-white px-10 py-4 rounded-xl font-medium transform transition-all duration-300 hover:scale-105 text-center min-w-[220px] shadow-lg shadow-purple-500/20"
-            >
-              <span className="relative z-10">Explore Consoles</span>
-              <div className="absolute inset-0 bg-gradient-to-r from-purple-500 to-purple-700 transform scale-x-0 group-hover:scale-x-100 transition-transform origin-left duration-500"></div>
-            </a>
-
-            <a 
-              href="#shop" 
-              className="group relative overflow-hidden bg-purple-600 hover:bg-purple-700 text-white px-10 py-4 rounded-xl font-medium transform transition-all duration-300 hover:scale-105 text-center min-w-[220px] shadow-lg shadow-purple-500/20"
-            >
-              <span className="relative z-10">Explore Games</span>
-              <div className="absolute inset-0 bg-gradient-to-r from-purple-500 to-purple-700 transform scale-x-0 group-hover:scale-x-100 transition-transform origin-left duration-500"></div>
-            </a>
 
             <a 
               href="#suggestion" 
-              className="group relative overflow-hidden bg-gray-800/50 backdrop-blur-sm text-purple-400 hover:text-white px-10 py-4 rounded-xl font-medium transform transition-all duration-300 hover:scale-105 text-center min-w-[220px] border border-purple-500/30"
+              className="group relative overflow-hidden bg-purple-600 hover:bg-purple-700 text-white px-10 py-4 rounded-xl font-medium transform transition-all duration-300 hover:scale-105 text-center min-w-[220px] shadow-lg shadow-purple-500/20"
             >
               <span className="relative z-10">Request a Game</span>
-              <div className="absolute inset-0 bg-purple-600 transform scale-x-0 group-hover:scale-x-100 transition-transform origin-left duration-500 opacity-50"></div>
+              <div className="absolute inset-0 bg-gradient-to-r from-purple-500 to-purple-700 transform scale-x-0 group-hover:scale-x-100 transition-transform origin-left duration-500"></div>
             </a>
+
+
 
           </div>
         </div>
