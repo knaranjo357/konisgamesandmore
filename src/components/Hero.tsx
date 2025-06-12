@@ -6,7 +6,7 @@ const Hero: React.FC = () => {
       id="home" 
       className="relative pt-32 pb-20 bg-gradient-to-b from-gray-900 via-gray-900 to-gray-800"
     >
-      <div className="absolute inset-0 bg-[url('https://th.bing.com/th/id/OIP.olR48hFBmoMi6F-4Ng551wHaE7?w=237&h=180&c=7&r=0&o=7&dpr=1.3&pid=1.7&rm=3')] bg-cover bg-center"></div>
+      <div className="absolute inset-0 bg-[url('https://external-preview.redd.it/-tdsH0dYAyxmliFvvlrqfSQ-9i_Nqsqobi9c7Zwgznc.jpg?auto=webp&s=5dc0d71cdcd8dcca22d9eeee3ce500f45a66403c')] bg-cover bg-center"></div>
       <div className="absolute inset-0 bg-gradient-to-b from-gray-900/70 to-gray-900/90"></div>
       
       <div className="container mx-auto px-4 relative">
