@@ -52,7 +52,7 @@ const ConsoleBrowser: React.FC<Props> = ({ onConsoleSelect }) => {
   const handleConsoleClick = (console: ConsoleItem) => {
     // Check for specific console messages
     if (console.name.toLowerCase() === 'playstation2' || console.name.toLowerCase() === 'playstation 2') {
-      setMessageContent('Just want to make sure you know that you need a Free Mcboot to play burnt games in the PS2. Any questions please feel free to ask.');
+      setMessageContent('Just want to make sure you know that you need a Free Mcboot to play burnt games in the PS2. Any questions please feel free to ask. Also you need the right model of PS2.');
       setSelectedConsoleForMessage(console);
       setShowMessage(true);
       return;
