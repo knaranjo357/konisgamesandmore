@@ -11,15 +11,15 @@ interface GameModalProps {
 }
 
 const GameModal: React.FC<GameModalProps> = ({ game, onClose }) => {
-  // Incluimos isCartOpen y toggleCart desde el contexto
+  // 1. Usamos la versión de useCart que incluye isCartOpen y toggleCart
   const { addToCart, removeFromCart, items, isCartOpen, toggleCart } = useCart();
   const [selectedType, setSelectedType] = useState<PriceCategory>('price1');
   const images = [game.imageUrl, game.imageUrl2, game.imageUrl3].filter(url => url && url !== '');
 
-  // Maneja abrir siempre el carrito (sólo hace toggle si está cerrado)
+  // 2. Mantenemos la lógica de "Go to Cart" que te gustaba
   const handleGoToCart = () => {
-    onClose();            // cierra el modal
-    if (!isCartOpen) {    // si el carrito NO está abierto, lo abre
+    onClose(); // Cierra el modal
+    if (!isCartOpen) { // Si el carrito NO está abierto, lo abre
       toggleCart();
     }
   };
@@ -32,9 +32,8 @@ const GameModal: React.FC<GameModalProps> = ({ game, onClose }) => {
     removeFromCart(game.id, type);
   };
 
-  // Obtiene y ordena las categorías de precio disponibles
   const getPrices = () => {
-    return (['price1','price2','price3','price4','price5'] as PriceCategory[])
+    return (['price1', 'price2', 'price3', 'price4', 'price5'] as PriceCategory[])
       .map(field => {
         const value = game[field];
         if (!value) return null;
@@ -48,12 +47,12 @@ const GameModal: React.FC<GameModalProps> = ({ game, onClose }) => {
   const prices = getPrices();
   const cartItems = items.filter(item => item.id === game.id);
 
-  // Inicializa el select con la opción más barata
+  // Inicializa el select con la opción más barata (sólo al montar el componente)
   useEffect(() => {
     if (prices.length > 0) {
       setSelectedType(prices[0].value);
     }
-  }, [prices]);
+  }, []); // Usamos un array vacío para que se ejecute solo una vez
 
   return (
     <div className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-4">
@@ -78,13 +77,17 @@ const GameModal: React.FC<GameModalProps> = ({ game, onClose }) => {
 
             {/* Details & Cart */}
             <div>
-              {/* Console */}
               <div className="mb-6">
                 <h3 className="text-lg font-semibold text-white mb-2">Console</h3>
                 <p className="text-purple-400">{game.console}</p>
               </div>
 
-              {/* Add to Cart */}
+              {/* ===== 3. CAMBIO CLAVE: LA DESCRIPCIÓN VA AQUÍ PARA QUE EL SELECT FUNCIONE ===== */}
+              <div className="mb-6">
+                <h3 className="text-lg font-semibold text-white mb-2">Description</h3>
+                <p className="text-gray-300">{game.description}</p>
+              </div>
+
               <div className="mb-6">
                 <h3 className="text-lg font-semibold text-white mb-4">Add to Cart</h3>
                 <div className="space-y-4">
@@ -109,7 +112,7 @@ const GameModal: React.FC<GameModalProps> = ({ game, onClose }) => {
                 </div>
               </div>
 
-              {/* Go to Cart button + Listado rápido */}
+              {/* 4. Mantenemos la sección "In Cart" con el botón "Go to Cart" que te gustaba */}
               {cartItems.length > 0 && (
                 <div>
                   <div className="flex justify-between items-center mb-4">
@@ -146,12 +149,6 @@ const GameModal: React.FC<GameModalProps> = ({ game, onClose }) => {
                   </div>
                 </div>
               )}
-
-              {/* Description */}
-              <div className="mt-6">
-                <h3 className="text-lg font-semibold text-white mb-2">Description</h3>
-                <p className="text-gray-300">{game.description}</p>
-              </div>
             </div>
           </div>
         </div>
