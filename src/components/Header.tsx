@@ -38,8 +38,8 @@ const Header: React.FC = () => {
           {/* Desktop Menu */}
           <div className="hidden md:flex items-center space-x-10">
             <a href="#home" className="text-white/90 hover:text-purple-400 transition-all duration-300 text-sm font-medium hover:scale-105 transform">Home</a>
-            <a href="#consoles" className="text-white/90 hover:text-purple-400 transition-all duration-300 text-sm font-medium hover:scale-105 transform">Consoles</a>
-            <a href="#shop" className="text-white/90 hover:text-purple-400 transition-all duration-300 text-sm font-medium hover:scale-105 transform">Shop</a>
+            <a href="#consoles" className="text-white/90 hover:text-purple-400 transition-all duration-300 text-sm font-medium hover:scale-105 transform">Browse Games</a>
+            <a href="#shop" className="text-white/90 hover:text-purple-400 transition-all duration-300 text-sm font-medium hover:scale-105 transform">Shop Games</a>
             
             <button 
               onClick={toggleCart}
@@ -97,7 +97,7 @@ const Header: React.FC = () => {
               className="text-white/90 hover:text-purple-400 transition-all duration-300 py-2 border-b border-gray-800/50 hover:pl-2"
               onClick={() => setIsMenuOpen(false)}
             >
-              Shop
+              Shop Games
             </a>
             
             

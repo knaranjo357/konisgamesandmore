@@ -28,8 +28,7 @@ function App() {
               <RequestForm />
               <InfoSection />
               <Faq />
-{/*               <Footer />
-            </div> */}
+            </div>
           } />
         </Routes>
       </CartProvider>
