@@ -26,6 +26,9 @@ const Cart: React.FC = () => {
   const [checkoutForm, setCheckoutForm] = useState({
     nombre: '',
     direccion: '',
+    city: '',
+    state: '',
+    postal: '',
     telefono: '',
     correo: '',
     notas: ''
@@ -64,6 +67,9 @@ const Cart: React.FC = () => {
     const newErrors: typeof errors = {};
     if (!checkoutForm.nombre.trim()) newErrors.nombre = 'Name is required';
     if (!checkoutForm.direccion.trim()) newErrors.direccion = 'Address is required';
+    if (!checkoutForm.city.trim()) newErrors.city = 'City is required';
+    if (!checkoutForm.state.trim()) newErrors.state = 'State is required';
+    if (!checkoutForm.postal.trim()) newErrors.postal = 'Postal code is required';
     if (!checkoutForm.telefono.trim()) {
       newErrors.telefono = 'Phone is required';
     } else if (checkoutForm.telefono.length < 6) {
@@ -115,6 +121,9 @@ const Cart: React.FC = () => {
             precio: Math.round(total * 100),
             nombre: checkoutForm.nombre,
             direccion: checkoutForm.direccion,
+            city: checkoutForm.city,
+            state: checkoutForm.state,
+            postal: checkoutForm.postal,
             telefono: checkoutForm.telefono,
             correo: checkoutForm.correo,
             notas: checkoutForm.notas,
@@ -157,6 +166,9 @@ const Cart: React.FC = () => {
     setCheckoutForm({
       nombre: '',
       direccion: '',
+      city: '',
+      state: '',
+      postal: '',
       telefono: '',
       correo: '',
       notas: ''
@@ -396,6 +408,72 @@ const Cart: React.FC = () => {
                       {errors.direccion && (
                         <p className="text-red-500 text-sm mt-1">
                           {errors.direccion}
+                        </p>
+                      )}
+                    </div>
+                    {/** City */}
+                    <div>
+                      <label className="block text-sm font-medium text-gray-300 mb-1">
+                        City *
+                      </label>
+                      <input
+                        type="text"
+                        name="city"
+                        value={checkoutForm.city}
+                        onChange={handleCheckoutFormChange}
+                        className={`w-full bg-gray-700 text-white px-3 py-2 rounded focus:outline-none focus:ring-2 ${
+                          errors.city
+                            ? 'border-red-500 focus:ring-red-500'
+                            : 'focus:ring-purple-500'
+                        }`}
+                      />
+                      {errors.city && (
+                        <p className="text-red-500 text-sm mt-1">
+                          {errors.city}
+                        </p>
+                      )}
+                    </div>
+                    {/** State */}
+                    <div>
+                      <label className="block text-sm font-medium text-gray-300 mb-1">
+                        State *
+                      </label>
+                      <input
+                        type="text"
+                        name="state"
+                        value={checkoutForm.state}
+                        onChange={handleCheckoutFormChange}
+                        className={`w-full bg-gray-700 text-white px-3 py-2 rounded focus:outline-none focus:ring-2 ${
+                          errors.state
+                            ? 'border-red-500 focus:ring-red-500'
+                            : 'focus:ring-purple-500'
+                        }`}
+                      />
+                      {errors.state && (
+                        <p className="text-red-500 text-sm mt-1">
+                          {errors.state}
+                        </p>
+                      )}
+                    </div>
+                    {/** Postal Code */}
+                    <div>
+                      <label className="block text-sm font-medium text-gray-300 mb-1">
+                        Postal Code *
+                      </label>
+                      <input
+                        type="text"
+                        name="postal"
+                        value={checkoutForm.postal}
+                        onChange={handleCheckoutFormChange}
+                        className={`w-full bg-gray-700 text-white px-3 py-2 rounded focus:outline-none focus:ring-2 ${
+                          errors.postal
+                            ? 'border-red-500 focus:ring-red-500'
+                            : 'focus:ring-purple-500'
+                        }`}
+                      />
+                      {errors.postal && (
+                        <p className="text-red-500 text-sm mt-1">
+                          {errors.postal}
                         </p>
                       )}
                     </div>

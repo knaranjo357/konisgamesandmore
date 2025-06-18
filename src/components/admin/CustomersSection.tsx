@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Search, Eye, EyeOff, Calendar, DollarSign, User, MapPin, Phone, Mail, FileText, Package } from 'lucide-react';
+import { Search, Eye, EyeOff, Calendar, DollarSign, User, MapPin, Phone, Mail, FileText, Package, Hash } from 'lucide-react';
 
 interface Customer {
   id: number;
@@ -7,6 +7,9 @@ interface Customer {
   price: string;
   name: string;
   address: string;
+  city?: string;
+  state?: string;
+  postal?: string;
   phone: string;
   email: string;
   notes: string;
@@ -91,7 +94,11 @@ const CustomersSection: React.FC = () => {
       customer.name.toLowerCase().includes(query) ||
       customer.email.toLowerCase().includes(query) ||
       customer.phone.includes(query) ||
-      customer.address.toLowerCase().includes(query)
+      customer.address.toLowerCase().includes(query) ||
+      (customer.city && customer.city.toLowerCase().includes(query)) ||
+      (customer.state && customer.state.toLowerCase().includes(query)) ||
+      (customer.postal && customer.postal.includes(query)) ||
+      customer.id.toString().includes(query)
     );
   });
 
@@ -138,7 +145,7 @@ const CustomersSection: React.FC = () => {
       <div className="relative">
         <input
           type="text"
-          placeholder="Search customers by name, email, phone, or address..."
+          placeholder="Search customers by name, email, phone, address, city, state, postal code, or order ID..."
           value={searchQuery}
           onChange={(e) => setSearchQuery(e.target.value)}
           className="w-full bg-gray-700 text-white px-4 py-3 pr-12 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500"
@@ -166,6 +173,10 @@ const CustomersSection: React.FC = () => {
                       <div className="flex items-center gap-3 mb-2">
                         <User className="w-5 h-5 text-purple-400" />
                         <h3 className="text-xl font-semibold text-white">{customer.name}</h3>
+                        <div className="flex items-center gap-2">
+                          <Hash className="w-4 h-4 text-gray-400" />
+                          <span className="text-gray-300 text-sm font-mono">#{customer.id}</span>
+                        </div>
                         <span className={`px-3 py-1 rounded-full text-xs font-medium ${
                           customer.pago 
                             ? 'bg-green-500/20 text-green-400' 
@@ -192,6 +203,15 @@ const CustomersSection: React.FC = () => {
                           <Phone className="w-4 h-4 text-gray-400" />
                           {customer.phone}
                         </div>
+                      </div>
+
+                      {/* Address Summary */}
+                      <div className="mt-2 text-sm text-gray-400">
+                        <MapPin className="w-4 h-4 inline mr-1" />
+                        {customer.address}
+                        {customer.city && `, ${customer.city}`}
+                        {customer.state && `, ${customer.state}`}
+                        {customer.postal && ` ${customer.postal}`}
                       </div>
                     </div>
 
@@ -244,10 +264,22 @@ const CustomersSection: React.FC = () => {
                         </h4>
                         <div className="space-y-3">
                           <div className="flex items-start gap-3">
+                            <Hash className="w-4 h-4 text-gray-400 mt-1" />
+                            <div>
+                              <p className="text-sm text-gray-400">Order ID</p>
+                              <p className="text-white font-mono">#{customer.id}</p>
+                            </div>
+                          </div>
+                          <div className="flex items-start gap-3">
                             <MapPin className="w-4 h-4 text-gray-400 mt-1" />
                             <div>
-                              <p className="text-sm text-gray-400">Address</p>
-                              <p className="text-white">{customer.address}</p>
+                              <p className="text-sm text-gray-400">Full Address</p>
+                              <div className="text-white">
+                                <p>{customer.address}</p>
+                                {customer.city && customer.state && customer.postal && (
+                                  <p>{customer.city}, {customer.state} {customer.postal}</p>
+                                )}
+                              </div>
                             </div>
                           </div>
                           <div className="flex items-start gap-3">
@@ -313,8 +345,6 @@ const CustomersSection: React.FC = () => {
                                 <span>Total:</span>
                                 <span>${(Number(customer.price) / 100).toFixed(2)}</span>
                               </div>
-                            
-                            
                             </div>
                           </div>
                         </div>

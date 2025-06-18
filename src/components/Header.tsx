@@ -93,6 +93,13 @@ const Header: React.FC = () => {
               Home
             </a>
             <a 
+              href="#consoles" 
+              className="text-white/90 hover:text-purple-400 transition-all duration-300 py-2 border-b border-gray-800/50 hover:pl-2"
+              onClick={() => setIsMenuOpen(false)}
+            >
+              Browse Games
+            </a>
+            <a 
               href="#shop" 
               className="text-white/90 hover:text-purple-400 transition-all duration-300 py-2 border-b border-gray-800/50 hover:pl-2"
               onClick={() => setIsMenuOpen(false)}
