@@ -38,7 +38,7 @@ const ConsoleBrowser: React.FC<Props> = ({ onConsoleSelect }) => {
           .map(consoleName => ({
             name: consoleName,
             slug: consoleName.toLowerCase().replace(/\s+/g, '-'),
-            image: uniqueGames.find(game => game.console === consoleName && game.console_url)?.console_url || ''
+            image: uniqueGames.find(game => game.console === consoleName)?.console_url || ''
           }));
         setConsoles(uniqueConsoles);
       } catch (error) {

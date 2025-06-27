@@ -11,25 +11,30 @@ import Cart from './components/Cart';
 import Shop from './components/Shop';
 import Admin from './components/Admin';
 import { CartProvider } from './context/CartContext';
+import { AnalyticsListener } from './analytics';
 
 function App() {
   return (
     <Router>
       <CartProvider>
+        <AnalyticsListener />
         <Routes>
           <Route path="/admin" element={<Admin />} />
-          <Route path="/" element={
-            <div className="min-h-screen bg-gray-900 text-white">
-              <Header />
-              <Cart />
-              <Hero />
-              <ConsoleBrowser />
-              <Shop />
-              <RequestForm />
-              <InfoSection />
-              <Faq />
-            </div>
-          } />
+          <Route
+            path="/"
+            element={
+              <div className="min-h-screen bg-gray-900 text-white">
+                <Header />
+                <Cart />
+                <Hero />
+                <ConsoleBrowser />
+                <Shop />
+                <RequestForm />
+                <InfoSection />
+                <Faq />
+              </div>
+            }
+          />
         </Routes>
       </CartProvider>
     </Router>
