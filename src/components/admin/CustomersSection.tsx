@@ -1,5 +1,19 @@
 import React, { useState, useEffect } from 'react';
-import { Search, Eye, EyeOff, Calendar, DollarSign, User, MapPin, Phone, Mail, FileText, Package, Hash } from 'lucide-react';
+import {
+  Search,
+  Eye,
+  EyeOff,
+  Calendar,
+  DollarSign,
+  User,
+  MapPin,
+  Phone,
+  Mail,
+  FileText,
+  Package,
+  Hash,
+} from 'lucide-react';
+import AnalyticsReport from './AnalyticsReport';
 
 interface Customer {
   id: number;
@@ -40,8 +54,10 @@ const CustomersSection: React.FC = () => {
   const loadCustomers = async () => {
     try {
       setLoading(true);
-      const response = await fetch('https://n8n.alliasoft.com/webhook/konisgamesandmore/clientes');
-      
+      const response = await fetch(
+        'https://n8n.alliasoft.com/webhook/konisgamesandmore/clientes'
+      );
+
       if (!response.ok) {
         throw new Error('Failed to fetch customers');
       }
@@ -59,22 +75,22 @@ const CustomersSection: React.FC = () => {
 
   const parseOrderDetails = (details: string): OrderItem[] => {
     if (!details) return [];
-    
-    return details.split(';').map(item => {
+
+    return details.split(';').map((item) => {
       const parts = item.split(', ');
       return {
         name: parts[0] || '',
         console: parts[1] || '',
         category: parts[2] || '',
         price: parts[3] || '0',
-        quantity: parts[4] || '1'
+        quantity: parts[4] || '1',
       };
     });
   };
 
   const calculateTotal = (price: string): number => {
     const subtotal = Number(price) / 100; // Convert from cents
-    const shipping = 4.00;
+    const shipping = 4.0;
     return subtotal + shipping;
   };
 
@@ -84,11 +100,11 @@ const CustomersSection: React.FC = () => {
       month: 'short',
       day: 'numeric',
       hour: '2-digit',
-      minute: '2-digit'
+      minute: '2-digit',
     });
   };
 
-  const filteredCustomers = customers.filter(customer => {
+  const filteredCustomers = customers.filter((customer) => {
     const query = searchQuery.toLowerCase();
     return (
       customer.name.toLowerCase().includes(query) ||
@@ -157,43 +173,54 @@ const CustomersSection: React.FC = () => {
       <div className="space-y-4">
         {filteredCustomers.length === 0 ? (
           <div className="text-center text-gray-400 py-12">
-            {searchQuery ? 'No customers found matching your search' : 'No customers found'}
+            {searchQuery
+              ? 'No customers found matching your search'
+              : 'No customers found'}
           </div>
         ) : (
-          filteredCustomers.map(customer => {
+          filteredCustomers.map((customer) => {
             const orderItems = parseOrderDetails(customer.details);
             const total = calculateTotal(customer.price);
             const isExpanded = expandedCustomer === customer.id;
 
             return (
-              <div key={customer.id} className="bg-gray-800 rounded-lg overflow-hidden">
+              <div
+                key={customer.id}
+                className="bg-gray-800 rounded-lg overflow-hidden"
+              >
                 <div className="p-6">
                   <div className="flex justify-between items-start mb-4">
                     <div className="flex-1">
                       <div className="flex items-center gap-3 mb-2">
                         <User className="w-5 h-5 text-purple-400" />
-                        <h3 className="text-xl font-semibold text-white">{customer.name}</h3>
+                        <h3 className="text-xl font-semibold text-white">
+                          {customer.name}
+                        </h3>
                         <div className="flex items-center gap-2">
                           <Hash className="w-4 h-4 text-gray-400" />
-                          <span className="text-gray-300 text-sm font-mono">#{customer.id}</span>
+                          <span className="text-gray-300 text-sm font-mono">
+                            #{customer.id}
+                          </span>
                         </div>
-                        <span className={`px-3 py-1 rounded-full text-xs font-medium ${
-                          customer.pago 
-                            ? 'bg-green-500/20 text-green-400' 
-                            : 'bg-yellow-500/20 text-yellow-400'
-                        }`}>
+                        <span
+                          className={`px-3 py-1 rounded-full text-xs font-medium ${
+                            customer.pago
+                              ? 'bg-green-500/20 text-green-400'
+                              : 'bg-yellow-500/20 text-yellow-400'
+                          }`}
+                        >
                           {customer.pago ? 'Paid' : 'Pending'}
                         </span>
                       </div>
-                      
+
                       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 text-sm">
                         <div className="flex items-center gap-2 text-gray-300">
                           <Calendar className="w-4 h-4 text-gray-400" />
                           {formatDate(customer.created_at)}
                         </div>
                         <div className="flex items-center gap-2 text-gray-300">
-                          <DollarSign className="w-4 h-4 text-gray-400" />
-                          ${(Number(customer.price) / 100).toFixed(2)} total
+                          <DollarSign className="w-4 h-4 text-gray-400" />$
+                          {(Number(customer.price) / 100).toFixed(2)} total
                         </div>
                         <div className="flex items-center gap-2 text-gray-300">
                           <Mail className="w-4 h-4 text-gray-400" />
@@ -240,7 +267,10 @@ const CustomersSection: React.FC = () => {
                   </div>
                   <div className="flex flex-wrap gap-2">
                     {orderItems.slice(0, 3).map((item, index) => (
-                      <span key={index} className="bg-gray-700 px-3 py-1 rounded-full text-sm text-gray-300">
+                      <span
+                        key={index}
+                        className="bg-gray-700 px-3 py-1 rounded-full text-sm text-gray-300"
+                      >
                         {item.name} ({item.quantity}x)
                       </span>
                     ))}
@@ -267,18 +297,27 @@ const CustomersSection: React.FC = () => {
                             <Hash className="w-4 h-4 text-gray-400 mt-1" />
                             <div>
                               <p className="text-sm text-gray-400">Order ID</p>
-                              <p className="text-white font-mono">#{customer.id}</p>
+                              <p className="text-white font-mono">
+                                #{customer.id}
+                              </p>
                             </div>
                           </div>
                           <div className="flex items-start gap-3">
                             <MapPin className="w-4 h-4 text-gray-400 mt-1" />
                             <div>
-                              <p className="text-sm text-gray-400">Full Address</p>
+                              <p className="text-sm text-gray-400">
+                                Full Address
+                              </p>
                               <div className="text-white">
                                 <p>{customer.address}</p>
-                                {customer.city && customer.state && customer.postal && (
-                                  <p>{customer.city}, {customer.state} {customer.postal}</p>
-                                )}
+                                {customer.city &&
+                                  customer.state &&
+                                  customer.postal && (
+                                    <p>
+                                      {customer.city}, {customer.state}{' '}
+                                      {customer.postal}
+                                    </p>
+                                  )}
                               </div>
                             </div>
                           </div>
@@ -309,8 +348,12 @@ const CustomersSection: React.FC = () => {
                             <div className="flex items-start gap-3">
                               <DollarSign className="w-4 h-4 text-gray-400 mt-1" />
                               <div>
-                                <p className="text-sm text-gray-400">Payment ID</p>
-                                <p className="text-white font-mono text-sm">{customer.pago_id}</p>
+                                <p className="text-sm text-gray-400">
+                                  Payment ID
+                                </p>
+                                <p className="text-white font-mono text-sm">
+                                  {customer.pago_id}
+                                </p>
                               </div>
                             </div>
                           )}
@@ -325,10 +368,17 @@ const CustomersSection: React.FC = () => {
                         </h4>
                         <div className="space-y-3">
                           {orderItems.map((item, index) => (
-                            <div key={index} className="bg-gray-800 p-4 rounded-lg">
+                            <div
+                              key={index}
+                              className="bg-gray-800 p-4 rounded-lg"
+                            >
                               <div className="flex justify-between items-start mb-2">
-                                <h5 className="font-medium text-white">{item.name}</h5>
-                                <span className="text-purple-400 font-medium">${item.price}</span>
+                                <h5 className="font-medium text-white">
+                                  {item.name}
+                                </h5>
+                                <span className="text-purple-400 font-medium">
+                                  ${item.price}
+                                </span>
                               </div>
                               <div className="text-sm text-gray-400 space-y-1">
                                 <p>Console: {item.console}</p>
@@ -337,13 +387,15 @@ const CustomersSection: React.FC = () => {
                               </div>
                             </div>
                           ))}
-                          
+
                           {/* Order Summary */}
                           <div className="bg-gray-800 p-4 rounded-lg border border-purple-500/20">
                             <div className="space-y-2">
                               <div className="flex justify-between text-gray-300">
                                 <span>Total:</span>
-                                <span>${(Number(customer.price) / 100).toFixed(2)}</span>
+                                <span>
+                                  ${(Number(customer.price) / 100).toFixed(2)}
+                                </span>
                               </div>
                             </div>
                           </div>
@@ -357,6 +409,7 @@ const CustomersSection: React.FC = () => {
           })
         )}
       </div>
+      {/* <AnalyticsReport /> */}
     </div>
   );
 };

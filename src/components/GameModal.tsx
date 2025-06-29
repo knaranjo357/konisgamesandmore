@@ -12,14 +12,18 @@ interface GameModalProps {
 
 const GameModal: React.FC<GameModalProps> = ({ game, onClose }) => {
   // 1. Usamos la versión de useCart que incluye isCartOpen y toggleCart
-  const { addToCart, removeFromCart, items, isCartOpen, toggleCart } = useCart();
+  const { addToCart, removeFromCart, items, isCartOpen, toggleCart } =
+    useCart();
   const [selectedType, setSelectedType] = useState<PriceCategory>('price1');
-  const images = [game.imageUrl, game.imageUrl2, game.imageUrl3].filter(url => url && url !== '');
+  const images = [game.imageUrl, game.imageUrl2, game.imageUrl3].filter(
+    (url) => url && url !== ''
+  );
 
   // 2. Mantenemos la lógica de "Go to Cart" que te gustaba
   const handleGoToCart = () => {
     onClose(); // Cierra el modal
-    if (!isCartOpen) { // Si el carrito NO está abierto, lo abre
+    if (!isCartOpen) {
+      // Si el carrito NO está abierto, lo abre
       toggleCart();
     }
   };
@@ -33,19 +37,23 @@ const GameModal: React.FC<GameModalProps> = ({ game, onClose }) => {
   };
 
   const getPrices = () => {
-    return (['price1', 'price2', 'price3', 'price4', 'price5'] as PriceCategory[])
-      .map(field => {
+    return (
+      ['price1', 'price2', 'price3', 'price4', 'price5'] as PriceCategory[]
+    )
+      .map((field) => {
         const value = game[field];
         if (!value) return null;
         const [name, price] = value.split('-');
         return { value: field, label: name, price: Number(price) };
       })
-      .filter((x): x is { value: PriceCategory; label: string; price: number } => !!x)
+      .filter(
+        (x): x is { value: PriceCategory; label: string; price: number } => !!x
+      )
       .sort((a, b) => a.price - b.price);
   };
 
   const prices = getPrices();
-  const cartItems = items.filter(item => item.id === game.id);
+  const cartItems = items.filter((item) => item.id === game.id);
 
   // Inicializa el select con la opción más barata (sólo al montar el componente)
   useEffect(() => {
@@ -60,7 +68,10 @@ const GameModal: React.FC<GameModalProps> = ({ game, onClose }) => {
         {/* Header */}
         <div className="sticky top-0 bg-gray-800 p-4 border-b border-gray-700 flex justify-between items-center">
           <h2 className="text-2xl font-bold text-white">{game.name}</h2>
-          <button onClick={onClose} className="text-gray-400 hover:text-white transition-colors">
+          <button
+            onClick={onClose}
+            className="text-gray-400 hover:text-white transition-colors"
+          >
             <X className="w-6 h-6" />
           </button>
         </div>
@@ -78,25 +89,27 @@ const GameModal: React.FC<GameModalProps> = ({ game, onClose }) => {
             {/* Details & Cart */}
             <div>
               <div className="mb-6">
-                <h3 className="text-lg font-semibold text-white mb-2">Console</h3>
+                <h3 className="text-lg font-semibold text-white mb-2">
+                  Console
+                </h3>
                 <p className="text-purple-400">{game.console}</p>
               </div>
 
               {/* ===== 3. CAMBIO CLAVE: LA DESCRIPCIÓN VA AQUÍ PARA QUE EL SELECT FUNCIONE ===== */}
-              <div className="mb-6">
-                <h3 className="text-lg font-semibold text-white mb-2">Description</h3>
-                <p className="text-gray-300">{game.description}</p>
-              </div>
 
               <div className="mb-6">
-                <h3 className="text-lg font-semibold text-white mb-4">Add to Cart</h3>
+                <h3 className="text-lg font-semibold text-white mb-4">
+                  Add to Cart
+                </h3>
                 <div className="space-y-4">
                   <select
                     value={selectedType}
-                    onChange={e => setSelectedType(e.target.value as PriceCategory)}
+                    onChange={(e) =>
+                      setSelectedType(e.target.value as PriceCategory)
+                    }
                     className="w-full bg-gray-700 text-white px-4 py-3 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500"
                   >
-                    {prices.map(item => (
+                    {prices.map((item) => (
                       <option key={item.value} value={item.value}>
                         {item.label} – ${item.price}
                       </option>
@@ -112,11 +125,20 @@ const GameModal: React.FC<GameModalProps> = ({ game, onClose }) => {
                 </div>
               </div>
 
+              <div className="mb-6">
+                <h3 className="text-lg font-semibold text-white mb-2">
+                  Description
+                </h3>
+                <p className="text-gray-300">{game.description}</p>
+              </div>
+
               {/* 4. Mantenemos la sección "In Cart" con el botón "Go to Cart" que te gustaba */}
               {cartItems.length > 0 && (
                 <div>
                   <div className="flex justify-between items-center mb-4">
-                    <h3 className="text-lg font-semibold text-white">In Cart</h3>
+                    <h3 className="text-lg font-semibold text-white">
+                      In Cart
+                    </h3>
                     <button
                       onClick={handleGoToCart}
                       className="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-lg flex items-center gap-2 text-sm font-medium transition-colors"
@@ -126,7 +148,7 @@ const GameModal: React.FC<GameModalProps> = ({ game, onClose }) => {
                     </button>
                   </div>
                   <div className="space-y-2">
-                    {cartItems.map(item => {
+                    {cartItems.map((item) => {
                       const [name] = game[item.selectedType].split('-');
                       return (
                         <div
@@ -135,10 +157,14 @@ const GameModal: React.FC<GameModalProps> = ({ game, onClose }) => {
                         >
                           <div>
                             <span className="text-gray-200">{name}</span>
-                            <span className="text-purple-400 ml-2">x{item.quantity}</span>
+                            <span className="text-purple-400 ml-2">
+                              x{item.quantity}
+                            </span>
                           </div>
                           <button
-                            onClick={() => handleRemoveFromCart(item.selectedType)}
+                            onClick={() =>
+                              handleRemoveFromCart(item.selectedType)
+                            }
                             className="text-red-400 hover:text-red-300 p-1"
                           >
                             <Trash className="w-5 h-5" />
