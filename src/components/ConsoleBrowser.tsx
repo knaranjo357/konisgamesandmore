@@ -65,7 +65,7 @@ const ConsoleBrowser: React.FC<Props> = ({ onConsoleSelect }) => {
       return;
     }
 
-    // Normal console navigation
+    // Normal console navigation - now uses client-side filtering
     navigateToShop(console);
   };
 
@@ -74,12 +74,12 @@ const ConsoleBrowser: React.FC<Props> = ({ onConsoleSelect }) => {
     if (shopElement) {
       shopElement.scrollIntoView({ behavior: 'smooth' });
       
-      // Update the console select element
+      // Update the console select element - this will now trigger client-side filtering
       setTimeout(() => {
         const selectElement = document.getElementById('console-select') as HTMLSelectElement;
         if (selectElement) {
           selectElement.value = console.name;
-          // Trigger change event
+          // Trigger change event to update the filter
           selectElement.dispatchEvent(new Event('change', { bubbles: true }));
         }
       }, 100);
@@ -90,7 +90,7 @@ const ConsoleBrowser: React.FC<Props> = ({ onConsoleSelect }) => {
     setShowMessage(false);
     setMessageContent('');
     
-    // Navigate to shop with the selected console filter
+    // Navigate to shop with the selected console filter - now uses client-side filtering
     if (selectedConsoleForMessage) {
       navigateToShop(selectedConsoleForMessage);
     }

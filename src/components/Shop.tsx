@@ -1,12 +1,13 @@
 import React, { useState, useEffect } from 'react';
-import { fetchGames, fetchGamesByConsole } from '../api/gameService';
+import { fetchGames } from '../api/gameService';
 import { Game } from '../types';
 import GameCard from './GameCard';
+import ConsoleSEO from './ConsoleSEO';
 import { Search, ArrowUpDown, Filter, X } from 'lucide-react';
 import GameModal from './GameModal';
 
 const Shop: React.FC = () => {
-  const [games, setGames] = useState<Game[]>([]);
+  const [allGames, setAllGames] = useState<Game[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [selectedConsole, setSelectedConsole] = useState<string>('all');
@@ -25,7 +26,7 @@ const Shop: React.FC = () => {
   const alphabet = ['all', ...Array.from({ length: 26 }, (_, i) => String.fromCharCode(65 + i))];
 
   useEffect(() => {
-    loadGames();
+    loadAllGames();
   }, []);
 
   // Function to scroll to shop section
@@ -36,11 +37,11 @@ const Shop: React.FC = () => {
     }
   };
 
-  const loadGames = async () => {
+  const loadAllGames = async () => {
     try {
       setLoading(true);
-      const allGames = await fetchGames();
-      const uniqueGames = allGames.reduce((acc: Game[], current) => {
+      const allGamesData = await fetchGames();
+      const uniqueGames = allGamesData.reduce((acc: Game[], current) => {
         const x = acc.find(item => item.id === current.id);
         if (!x) {
           return acc.concat([current]);
@@ -49,7 +50,7 @@ const Shop: React.FC = () => {
         }
       }, []);
 
-      setGames(uniqueGames);
+      setAllGames(uniqueGames);
       
       const uniqueConsoles = Array.from(new Set(uniqueGames.map(game => game.console)))
         .sort((a, b) => a.localeCompare(b));
@@ -63,37 +64,8 @@ const Shop: React.FC = () => {
     }
   };
 
-  const loadGamesByConsole = async (console: string) => {
-    if (console === 'all') {
-      await loadGames();
-      return;
-    }
-
-    try {
-      setLoading(true);
-      const consoleGames = await fetchGamesByConsole(console);
-      const uniqueGames = consoleGames.reduce((acc: Game[], current) => {
-        const x = acc.find(item => item.id === current.id);
-        if (!x) {
-          return acc.concat([current]);
-        } else {
-          return acc;
-        }
-      }, []);
-
-      setGames(uniqueGames);
-      setSelectedLetter('all'); // Reset letter filter when console changes
-      setError(null);
-    } catch (err) {
-      setError('Failed to load games for this console. Please try again later.');
-      console.error(err);
-    } finally {
-      setLoading(false);
-    }
-  };
-
   const getLowestPrice = (game: Game): number => {
-    const prices = ['price1', 'price2', 'price3', 'price4', 'price5']
+    const prices = ['price1', 'price2', 'price3', 'price4', 'price5', 'price6']
       .map(field => {
         const value = game[field as keyof Game];
         if (value) {
@@ -132,9 +104,9 @@ const Shop: React.FC = () => {
     setShowMobileFilters(false);
   };
 
-  const handleConsoleChange = async (console: string) => {
+  const handleConsoleChange = (console: string) => {
     setSelectedConsole(console);
-    await loadGamesByConsole(console);
+    setSelectedLetter('all'); // Reset letter filter when console changes
     setShowMobileFilters(false);
     scrollToShop();
   };
@@ -145,11 +117,14 @@ const Shop: React.FC = () => {
     scrollToShop();
   };
 
-  const filteredGames = games.filter(game => {
+  // Client-side filtering - no API calls needed
+  const filteredGames = allGames.filter(game => {
+    // Console filter
     if (selectedConsole !== 'all' && game.console !== selectedConsole) {
       return false;
     }
 
+    // Search filter
     if (searchQuery) {
       const query = searchQuery.toLowerCase();
       if (!(
@@ -161,6 +136,7 @@ const Shop: React.FC = () => {
       }
     }
 
+    // Letter filter
     if (selectedLetter !== 'all') {
       const firstLetter = game.name.charAt(0).toUpperCase();
       if (firstLetter !== selectedLetter) {
@@ -190,6 +166,7 @@ const Shop: React.FC = () => {
 
   return (
     <section id="shop" className="py-16 bg-gray-800">
+      <ConsoleSEO console={selectedConsole} />
       <div className="sticky top-20 z-40 bg-gray-800 py-4 shadow-lg">
         <div className="container mx-auto px-4">
           {/* Mobile Filter Toggle Button */}

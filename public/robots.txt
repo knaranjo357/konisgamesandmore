@@ -1,0 +1,35 @@
+User-agent: *
+Allow: /
+
+# Sitemap
+Sitemap: https://konisgamesandmore.com/sitemap.xml
+
+# Specific console pages
+Allow: /dreamcast
+Allow: /gamecube
+Allow: /nintendo-64
+Allow: /nes
+Allow: /playstation
+Allow: /playstation2
+Allow: /sega-genesis
+Allow: /super-nintendo
+Allow: /sega-saturn
+Allow: /sega-cd
+Allow: /turbo-grafx
+Allow: /virtual-boy
+Allow: /gameboy
+Allow: /nintendo-ds
+Allow: /atari-jaguar
+Allow: /sega-32x
+
+# Important pages
+Allow: /shop
+Allow: /request
+Allow: /faq
+Allow: /contact
+
+# Block admin area
+Disallow: /admin
+
+# Crawl delay
+Crawl-delay: 1

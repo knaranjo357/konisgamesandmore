@@ -38,7 +38,7 @@ const GameModal: React.FC<GameModalProps> = ({ game, onClose }) => {
 
   const getPrices = () => {
     return (
-      ['price1', 'price2', 'price3', 'price4', 'price5'] as PriceCategory[]
+      ['price1', 'price2', 'price3', 'price4', 'price5', 'price6'] as PriceCategory[]
     )
       .map((field) => {
         const value = game[field];
@@ -81,7 +81,7 @@ const GameModal: React.FC<GameModalProps> = ({ game, onClose }) => {
           <div className="grid md:grid-cols-2 gap-8">
             {/* Carousel */}
             <div>
-              <div className="bg-gray-900 rounded-lg overflow-hidden">
+              <div className="relative group aspect-[3/4] w-full overflow-hidden bg-black">
                 <ImageCarousel images={images} alt={game.name} />
               </div>
             </div>

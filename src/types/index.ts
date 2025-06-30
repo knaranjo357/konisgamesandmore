@@ -14,6 +14,7 @@ export interface Game {
   price3: string;
   price4: string;
   price5: string;
+  price6: string;
 }
 
 export interface CartItem extends Game {
@@ -30,12 +31,13 @@ export interface CartContextType {
   toggleCart: () => void;
 }
 
-export type PriceCategory = 'price1' | 'price2' | 'price3' | 'price4' | 'price5';
+export type PriceCategory = 'price1' | 'price2' | 'price3' | 'price4' | 'price5'| 'price6';
 
 export const PRICE_CATEGORIES: { value: PriceCategory; label: string }[] = [
   { value: 'price1', label: 'Category 1' },
   { value: 'price2', label: 'Category 2' },
   { value: 'price3', label: 'Category 3' },
   { value: 'price4', label: 'Category 4' },
-  { value: 'price5', label: 'Category 5' }
+  { value: 'price5', label: 'Category 5' },
+  { value: 'price6', label: 'Category 6' }
 ];
