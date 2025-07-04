@@ -15,12 +15,11 @@ const Hero: React.FC = () => {
           <h1 className="text-5xl md:text-7xl font-bold mb-12 text-white animate-gradient">
             Retro Gaming Paradise
           </h1>
-          <h2 className="text-5xl md:text-7xl font-bold mb-12 text-white animate-gradient">
-            Welcome to our website!
-Please note that we’re still adjusting prices on some of our lower-end games.
-
-If you have any questions or need help finding a specific title, just tap the chat bubble — we’re here to help!
-          </h2>
+          <p className="text-xl md:text-3xl font-medium mb-12 text-white max-w-2xl leading-relaxed">
+      Welcome to our website! Please note that we’re still adjusting prices on
+      some of our lower-end games. If you have any questions or need help
+      finding a specific title, just tap the chat bubble — we’re here to help!
+    </p>
 
           <div className="flex flex-col md:flex-row justify-center items-center gap-6">
             <a 
