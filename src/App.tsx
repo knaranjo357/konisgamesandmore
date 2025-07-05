@@ -6,7 +6,6 @@ import Hero from './components/Hero';
 import ConsoleBrowser from './components/ConsoleBrowser';
 import RequestForm from './components/RequestForm';
 import InfoSection from './components/InfoSection';
-import Footer from './components/Footer';
 import Faq from './components/Faq';
 import Cart from './components/Cart';
 import Shop from './components/Shop';
@@ -36,7 +35,6 @@ function App() {
                   <RequestForm />
                   <InfoSection />
                   <Faq />
-                  <Footer />
                 </div>
               }
             />
