@@ -23,7 +23,7 @@ const GameCard: React.FC<GameCardProps> = ({
   const cartItem = items.find((item) => item.id === game.id);
 
   useEffect(() => {
-    const categories = ['price1', 'price2', 'price3', 'price4', 'price5', 'price6']
+    const categories = ['price1', 'price2', 'price3', 'price4', 'price5', 'price6','price7', 'price8']
       .map((field) => ({
         value: field as PriceCategory,
         label: game[field as keyof Game]?.split('-')[0] || '',
