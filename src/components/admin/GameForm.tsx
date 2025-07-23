@@ -89,7 +89,7 @@ const GameForm: React.FC<GameFormProps> = ({
     let hasErrors = false;
     const newErrors: { [key: string]: string } = {};
 
-    [1, 2, 3, 4, 5].forEach(index => {
+    [1, 2, 3, 4, 5, 6, 7, 8].forEach(index => {
       const priceField = `price${index}` as keyof Game;
       const value = formData[priceField] || '';
       const [name, price] = value.split('-');
