@@ -38,7 +38,7 @@ const GameModal: React.FC<GameModalProps> = ({ game, onClose }) => {
 
   const getPrices = () => {
     return (
-      ['price1', 'price2', 'price3', 'price4', 'price5', 'price6'] as PriceCategory[]
+      ['price1', 'price2', 'price3', 'price4', 'price5', 'price6', 'price7', 'price8'] as PriceCategory[]
     )
       .map((field) => {
         const value = game[field];
