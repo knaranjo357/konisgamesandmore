@@ -303,7 +303,7 @@ const GameForm: React.FC<GameFormProps> = ({
 
       <div className="space-y-6">
         <h3 className="text-lg font-medium">Price Categories</h3>
-        {[1, 2, 3, 4, 5].map((index) => {
+        {[1, 2, 3, 4, 5, 6, 7, 8].map((index) => {
           const priceField = `price${index}` as keyof Game;
           const error = errors[priceField];
           const [categoryName, categoryPrice] = (formData[priceField] || '-').split('-');
