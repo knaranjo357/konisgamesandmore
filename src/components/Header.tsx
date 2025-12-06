@@ -21,33 +21,50 @@ const Header: React.FC = () => {
   return (
     <header
       className={`fixed w-full z-50 transition-all duration-500 ${
-        isScrolled ? 'bg-gray-900/95 backdrop-blur-xl shadow-xl shadow-purple-500/5' : 'bg-transparent'
+        isScrolled 
+          ? 'bg-gray-900/80 backdrop-blur-xl border-b border-white/10 shadow-lg shadow-purple-900/20' 
+          : 'bg-transparent'
       }`}
     >
-      <nav className="max-w-7xl mx-auto px-4 py-2">
+      <nav className="max-w-7xl mx-auto px-4 py-3">
         <div className="flex justify-between items-center">
-          <a href="#home" className="flex items-center gap-2 group">
-            <img 
-              src="/logokonisgames.png" 
-              alt="Konis Games and More" 
-              className="h-16 w-auto"
-            />
-            <span className="text-white font-medium">Reproduction</span>
+          <a href="#home" className="flex items-center gap-3 group">
+            <div className="relative">
+              <div className="absolute -inset-1 bg-purple-600 rounded-full opacity-0 group-hover:opacity-50 blur transition-opacity duration-500"></div>
+              <img 
+                src="/logokonisgames.png" 
+                alt="Konis Games and More" 
+                className="h-14 w-auto relative z-10 drop-shadow-lg"
+              />
+            </div>
+            <span className="text-white font-bold tracking-wide text-lg group-hover:text-purple-300 transition-colors">
+              Konis<span className="text-purple-500">Games</span>
+            </span>
           </a>
           
           {/* Desktop Menu */}
-          <div className="hidden md:flex items-center space-x-10">
-            <a href="#home" className="text-white/90 hover:text-purple-400 transition-all duration-300 text-sm font-medium hover:scale-105 transform">Home</a>
-            <a href="#consoles" className="text-white/90 hover:text-purple-400 transition-all duration-300 text-sm font-medium hover:scale-105 transform">Browse Games</a>
-            <a href="#shop" className="text-white/90 hover:text-purple-400 transition-all duration-300 text-sm font-medium hover:scale-105 transform">Shop Games</a>
+          <div className="hidden md:flex items-center space-x-8">
+            {['Home', 'Browse Games', 'Shop Games'].map((text, idx) => {
+              const href = ['#home', '#consoles', '#shop'][idx];
+              return (
+                <a 
+                  key={text}
+                  href={href} 
+                  className="relative text-gray-300 hover:text-white text-sm font-semibold transition-all duration-300 group py-2"
+                >
+                  {text}
+                  <span className="absolute bottom-0 left-0 w-0 h-0.5 bg-gradient-to-r from-purple-500 to-pink-500 transition-all duration-300 group-hover:w-full"></span>
+                </a>
+              );
+            })}
             
             <button 
               onClick={toggleCart}
-              className="relative text-white/90 hover:text-purple-400 transition-all duration-300 transform hover:scale-110"
+              className="relative group p-2 rounded-full hover:bg-white/5 transition-all duration-300"
             >
-              <ShoppingCart className="w-6 h-6" />
+              <ShoppingCart className="w-6 h-6 text-gray-300 group-hover:text-purple-400 transition-colors" />
               {totalItems > 0 && (
-                <span className="absolute -top-2 -right-2 bg-purple-500 text-white text-xs font-bold rounded-full w-5 h-5 flex items-center justify-center shadow-lg animate-pulse">
+                <span className="absolute -top-1 -right-1 bg-gradient-to-r from-purple-600 to-pink-600 text-white text-[10px] font-bold rounded-full w-5 h-5 flex items-center justify-center shadow-lg animate-bounce">
                   {totalItems}
                 </span>
               )}
@@ -58,24 +75,20 @@ const Header: React.FC = () => {
           <div className="md:hidden flex items-center space-x-4">
             <button 
               onClick={toggleCart}
-              className="relative text-white/90 hover:text-purple-400 transition-all duration-300 transform hover:scale-110"
+              className="relative p-2"
             >
-              <ShoppingCart className="w-6 h-6" />
+              <ShoppingCart className="w-6 h-6 text-gray-100" />
               {totalItems > 0 && (
-                <span className="absolute -top-2 -right-2 bg-purple-500 text-white text-xs font-bold rounded-full w-5 h-5 flex items-center justify-center shadow-lg animate-pulse">
+                <span className="absolute -top-1 -right-1 bg-purple-600 text-white text-[10px] font-bold rounded-full w-5 h-5 flex items-center justify-center">
                   {totalItems}
                 </span>
               )}
             </button>
             <button 
               onClick={() => setIsMenuOpen(!isMenuOpen)}
-              className="text-white/90 hover:text-purple-400 transition-all duration-300"
+              className="text-gray-100 p-1"
             >
-              {isMenuOpen ? (
-                <X className="w-6 h-6" />
-              ) : (
-                <Menu className="w-6 h-6" />
-              )}
+              {isMenuOpen ? <X className="w-7 h-7" /> : <Menu className="w-7 h-7" />}
             </button>
           </div>
         </div>
@@ -83,31 +96,21 @@ const Header: React.FC = () => {
       
       {/* Mobile Menu */}
       {isMenuOpen && (
-        <div className="md:hidden bg-gray-900/95 backdrop-blur-xl py-4 px-4 animate-fadeIn border-t border-gray-800/50">
-          <nav className="flex flex-col space-y-4">
-            <a 
-              href="#home" 
-              className="text-white/90 hover:text-purple-400 transition-all duration-300 py-2 border-b border-gray-800/50 hover:pl-2"
-              onClick={() => setIsMenuOpen(false)}
-            >
-              Home
-            </a>
-            <a 
-              href="#consoles" 
-              className="text-white/90 hover:text-purple-400 transition-all duration-300 py-2 border-b border-gray-800/50 hover:pl-2"
-              onClick={() => setIsMenuOpen(false)}
-            >
-              Browse Games
-            </a>
-            <a 
-              href="#shop" 
-              className="text-white/90 hover:text-purple-400 transition-all duration-300 py-2 border-b border-gray-800/50 hover:pl-2"
-              onClick={() => setIsMenuOpen(false)}
-            >
-              Shop Games
-            </a>
-            
-            
+        <div className="md:hidden bg-gray-900/95 backdrop-blur-xl border-b border-white/10 animate-fade-in-down">
+          <nav className="flex flex-col p-4 space-y-2">
+            {['Home', 'Browse Games', 'Shop Games'].map((text, idx) => {
+               const href = ['#home', '#consoles', '#shop'][idx];
+               return (
+                <a 
+                  key={text}
+                  href={href} 
+                  className="text-gray-300 hover:text-white hover:bg-white/10 px-4 py-3 rounded-lg transition-all font-medium"
+                  onClick={() => setIsMenuOpen(false)}
+                >
+                  {text}
+                </a>
+               );
+            })}
           </nav>
         </div>
       )}

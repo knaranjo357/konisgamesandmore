@@ -19,22 +19,28 @@ function App() {
     <HelmetProvider>
       <Router>
         <CartProvider>
+          {/* Analytics listener escucha los cambios de ruta */}
           <AnalyticsListener />
+          
+          {/* SEO Global (carga por defecto) */}
           <SEO />
+
           <Routes>
             <Route path="/admin" element={<Admin />} />
             <Route
               path="/"
               element={
-                <div className="min-h-screen bg-gray-900 text-white">
+                <div className="min-h-screen bg-gray-900 text-white selection:bg-purple-500 selection:text-white">
                   <Header />
                   <Cart />
-                  <Hero />
-                  <ConsoleBrowser />
-                  <Shop />
-                  <RequestForm />
-                  <InfoSection />
-                  <Faq />
+                  <main>
+                    <Hero />
+                    <ConsoleBrowser />
+                    <Shop />
+                    <RequestForm />
+                    <InfoSection />
+                    <Faq />
+                  </main>
                 </div>
               }
             />

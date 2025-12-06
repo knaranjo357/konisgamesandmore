@@ -22,17 +22,11 @@ const ConsoleBrowser: React.FC<Props> = ({ onConsoleSelect }) => {
     const loadConsoles = async () => {
       try {
         const games = await fetchGames();
-        // Remove duplicates from games first
         const uniqueGames = games.reduce((acc: Game[], current) => {
           const x = acc.find(item => item.id === current.id);
-          if (!x) {
-            return acc.concat([current]);
-          } else {
-            return acc;
-          }
+          return !x ? acc.concat([current]) : acc;
         }, []);
 
-        // Get unique consoles and sort alphabetically
         const uniqueConsoles = Array.from(new Set(uniqueGames.map(game => game.console)))
           .sort((a, b) => a.localeCompare(b))
           .map(consoleName => ({
@@ -45,27 +39,22 @@ const ConsoleBrowser: React.FC<Props> = ({ onConsoleSelect }) => {
         console.error('Error loading consoles:', error);
       }
     };
-
     loadConsoles();
   }, []);
 
   const handleConsoleClick = (console: ConsoleItem) => {
-    // Check for specific console messages
-    if (console.name.toLowerCase() === 'playstation2' || console.name.toLowerCase() === 'playstation 2') {
-      setMessageContent('Just want to make sure you know that you need a Free Mcboot to play burnt games on the PS2. Any questions please feel free to ask. Also you need the right model of PS2.');
+    if (console.name.toLowerCase().includes('playstation 2')) {
+      setMessageContent('Note: You need a Free McBoot card to play burnt games on PS2.');
       setSelectedConsoleForMessage(console);
       setShowMessage(true);
       return;
     }
-    
-    if (console.name.toLowerCase() === 'sega saturn') {
-      setMessageContent('Just want to make sure you know, you need a action replay with Psuedo Kia programmed onto it to play burnt games at Sega Saturn.');
+    if (console.name.toLowerCase().includes('sega saturn')) {
+      setMessageContent('Note: You need an Action Replay with Pseudo Kai to play burnt games on Saturn.');
       setSelectedConsoleForMessage(console);
       setShowMessage(true);
       return;
     }
-
-    // Normal console navigation - now uses client-side filtering
     navigateToShop(console);
   };
 
@@ -73,13 +62,10 @@ const ConsoleBrowser: React.FC<Props> = ({ onConsoleSelect }) => {
     const shopElement = document.getElementById('shop');
     if (shopElement) {
       shopElement.scrollIntoView({ behavior: 'smooth' });
-      
-      // Update the console select element - this will now trigger client-side filtering
       setTimeout(() => {
         const selectElement = document.getElementById('console-select') as HTMLSelectElement;
         if (selectElement) {
           selectElement.value = console.name;
-          // Trigger change event to update the filter
           selectElement.dispatchEvent(new Event('change', { bubbles: true }));
         }
       }, 100);
@@ -88,37 +74,34 @@ const ConsoleBrowser: React.FC<Props> = ({ onConsoleSelect }) => {
 
   const closeMessageAndNavigate = () => {
     setShowMessage(false);
-    setMessageContent('');
-    
-    // Navigate to shop with the selected console filter - now uses client-side filtering
-    if (selectedConsoleForMessage) {
-      navigateToShop(selectedConsoleForMessage);
-    }
-    
+    if (selectedConsoleForMessage) navigateToShop(selectedConsoleForMessage);
     setSelectedConsoleForMessage(null);
   };
 
   return (
     <>
-      <section className="py-16 bg-gray-900" id="consoles">
-        <div className="container mx-auto px-4">
-          <h2 className="text-3xl font-bold mb-12 text-center text-white">Browse by Console</h2>
+      <section className="py-20 bg-gray-900 relative" id="consoles">
+        <div className="absolute inset-0 bg-gradient-to-b from-gray-900 via-purple-900/5 to-gray-800 pointer-events-none"></div>
+        <div className="container mx-auto px-4 relative z-10">
+          <div className="text-center mb-16">
+            <h2 className="text-4xl font-bold text-white mb-4">Browse by Console</h2>
+            <div className="w-24 h-1 bg-purple-600 mx-auto rounded-full"></div>
+          </div>
           
           <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-6">
             {consoles.map((console) => (
               <button 
                 key={console.slug}
                 onClick={() => handleConsoleClick(console)}
-                className="bg-gray-800 rounded-lg p-4 transform transition duration-300 hover:scale-105 group flex flex-col items-center justify-center"
+                className="group relative bg-gray-800/50 backdrop-blur-sm rounded-2xl p-6 transition-all duration-300 hover:-translate-y-2 hover:bg-gray-800 border border-white/5 hover:border-purple-500/50 hover:shadow-xl hover:shadow-purple-500/10 flex flex-col items-center justify-center"
               >
-                <div className="w-20 h-20 rounded-full overflow-hidden mb-4 border-2 border-gray-700 group-hover:border-purple-500 transition-colors">
-                  <img 
-                    src={console.image} 
-                    alt={console.name} 
-                    className="w-full h-full object-cover"
-                  />
+                <div className="relative w-24 h-24 mb-4">
+                  <div className="absolute inset-0 bg-purple-500 rounded-full opacity-0 group-hover:opacity-20 blur-md transition-opacity duration-300"></div>
+                  <div className="w-24 h-24 rounded-full overflow-hidden border-4 border-gray-700 group-hover:border-purple-500 transition-colors relative z-10 bg-gray-900">
+                    <img src={console.image} alt={console.name} className="w-full h-full object-cover opacity-80 group-hover:opacity-100 transition-opacity" />
+                  </div>
                 </div>
-                <h3 className="text-center text-sm font-medium text-gray-300 group-hover:text-purple-400 transition-colors">
+                <h3 className="text-center text-sm font-semibold text-gray-300 group-hover:text-white transition-colors">
                   {console.name}
                 </h3>
               </button>
@@ -127,25 +110,19 @@ const ConsoleBrowser: React.FC<Props> = ({ onConsoleSelect }) => {
         </div>
       </section>
 
-      {/* Console Message Modal */}
+      {/* Modal Message */}
       {showMessage && (
-        <div className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-4">
-          <div className="bg-gray-800 rounded-xl max-w-md w-full p-6 shadow-2xl">
+        <div className="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 flex items-center justify-center p-4 animate-fade-in">
+          <div className="bg-gray-800 border border-white/10 rounded-2xl max-w-md w-full p-8 shadow-2xl relative overflow-hidden">
+             <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-purple-500 to-pink-500"></div>
             <div className="text-center">
-              <div className="w-16 h-16 bg-purple-600 rounded-full flex items-center justify-center mx-auto mb-4">
-                <svg className="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-                </svg>
-              </div>
-              <h3 className="text-xl font-bold text-white mb-4">Important Information</h3>
-              <p className="text-gray-300 mb-6 leading-relaxed">
-                {messageContent}
-              </p>
+              <h3 className="text-2xl font-bold text-white mb-4">Good to know!</h3>
+              <p className="text-gray-300 mb-8 leading-relaxed text-lg">{messageContent}</p>
               <button
                 onClick={closeMessageAndNavigate}
-                className="bg-purple-600 hover:bg-purple-700 text-white px-6 py-3 rounded-lg transition-colors font-medium"
+                className="w-full bg-purple-600 hover:bg-purple-500 text-white py-3 rounded-xl font-bold transition-all shadow-lg hover:shadow-purple-500/25"
               >
-                Got it, thanks!
+                Understood, take me there
               </button>
             </div>
           </div>
