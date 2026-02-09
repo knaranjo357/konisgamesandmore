@@ -49,7 +49,7 @@ const Cart: React.FC = () => {
     }
     return sum;
   }, 0);
-  const shipping = 4.0;
+  const shipping = 5.0;
   const total = subtotal + shipping;
 
   const handleCheckoutFormChange = (
@@ -520,5 +520,6 @@ const Cart: React.FC = () => {
     </>
   );
 };
+
 
 export default Cart;
