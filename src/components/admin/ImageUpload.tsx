@@ -1,5 +1,5 @@
 import React, { useState, useRef } from 'react';
-import { Upload, X } from 'lucide-react';
+import { Upload, X, ImageIcon, CheckCircle2, Loader2 } from 'lucide-react';
 
 interface ImageUploadProps {
   id: number;
@@ -62,7 +62,7 @@ const ImageUpload: React.FC<ImageUploadProps> = ({
   };
 
   return (
-    <div className="relative">
+    <div className="relative group w-full">
       <input
         ref={fileInputRef}
         type="file"
@@ -71,39 +71,80 @@ const ImageUpload: React.FC<ImageUploadProps> = ({
         className="hidden"
       />
       
-      <div className="flex items-center gap-2">
-        <button
-          type="button"
-          onClick={() => fileInputRef.current?.click()}
-          disabled={uploading}
-          className={`flex items-center gap-2 px-4 py-2 rounded bg-gray-700 hover:bg-gray-600 transition-colors ${
-            uploading ? 'opacity-50 cursor-not-allowed' : ''
-          }`}
-        >
-          <Upload size={16} />
-          {uploading ? 'Uploading...' : 'Upload Image'}
-        </button>
-
-        {currentUrl && (
-          <div className="flex-1 flex items-center gap-2 bg-gray-700 px-4 py-2 rounded">
-            <img
-              src={currentUrl}
-              alt="Preview"
-              className="w-8 h-8 object-cover rounded"
-              onError={(e) => {
-                (e.target as HTMLImageElement).src = '/logokonisgames.png';
-              }}
-            />
-            <span className="flex-1 truncate text-sm">{currentUrl}</span>
+      {/* Zona de Arrastrar/Subir (Falsa, es botón) */}
+      <div 
+        onClick={() => !uploading && fileInputRef.current?.click()}
+        className={`w-full flex flex-col sm:flex-row items-center gap-4 p-3 rounded-xl border-2 border-dashed transition-all duration-300 cursor-pointer overflow-hidden relative ${
+          uploading 
+            ? 'bg-gray-900/50 border-purple-500/30 opacity-70 pointer-events-none' 
+            : currentUrl 
+              ? 'bg-gray-950/40 border-gray-700/50 hover:border-indigo-500/50 hover:bg-gray-900/60'
+              : 'bg-gray-950/40 border-gray-700 hover:border-purple-500 hover:bg-gray-900/60'
+        }`}
+      >
+        {/* Capa de Loading Overlay */}
+        {uploading && (
+          <div className="absolute inset-0 bg-gray-900/80 backdrop-blur-sm flex flex-col items-center justify-center z-10 transition-opacity">
+            <Loader2 className="w-6 h-6 text-purple-500 animate-spin mb-2" />
+            <span className="text-xs font-semibold text-purple-400 tracking-wider">UPLOADING TO AWS...</span>
           </div>
         )}
-      </div>
 
-      {uploading && (
-        <div className="absolute inset-0 bg-gray-900/50 flex items-center justify-center rounded">
-          <div className="w-6 h-6 border-2 border-purple-500 border-t-transparent rounded-full animate-spin"></div>
+        {/* Sección Izquierda: Preview o Ícono Vacío */}
+        <div className="shrink-0">
+          {currentUrl ? (
+            <div className="relative w-16 h-16 rounded-lg overflow-hidden border border-gray-700/50 shadow-[0_0_10px_rgba(0,0,0,0.3)] bg-gray-900 group-hover:shadow-[0_0_15px_rgba(99,102,241,0.2)] transition-shadow">
+              <img
+                src={currentUrl}
+                alt="Preview"
+                className="w-full h-full object-cover"
+                onError={(e) => {
+                  (e.target as HTMLImageElement).src = '/logokonisgames.png';
+                }}
+              />
+              <div className="absolute top-1 right-1 bg-green-500 rounded-full p-0.5 shadow-lg">
+                <CheckCircle2 className="w-3 h-3 text-white" />
+              </div>
+            </div>
+          ) : (
+            <div className="w-16 h-16 rounded-lg bg-gray-800/50 border border-gray-700/50 flex items-center justify-center text-gray-500 group-hover:text-purple-400 group-hover:bg-purple-500/10 transition-colors">
+              <ImageIcon className="w-6 h-6" />
+            </div>
+          )}
         </div>
-      )}
+
+        {/* Sección Derecha: Textos y Botón */}
+        <div className="flex-1 min-w-0 text-center sm:text-left flex flex-col justify-center">
+          {currentUrl ? (
+            <>
+              <p className="text-sm font-semibold text-gray-200 truncate">
+                Image {imageNumber} Uploaded
+              </p>
+              <p className="text-xs text-gray-500 truncate mt-0.5" title={currentUrl}>
+                {currentUrl.split('/').pop()}
+              </p>
+              <p className="text-[10px] font-medium text-indigo-400 mt-2 uppercase tracking-wider group-hover:text-indigo-300 transition-colors">
+                Click to replace image
+              </p>
+            </>
+          ) : (
+            <>
+              <p className="text-sm font-semibold text-gray-300 group-hover:text-white transition-colors">
+                Click to browse
+              </p>
+              <p className="text-xs text-gray-500 mt-0.5">
+                PNG, JPG or WEBP (Max. 5MB)
+              </p>
+              <div className="inline-flex items-center justify-center sm:justify-start gap-1.5 mt-2">
+                <span className="bg-gray-800 text-gray-400 px-2 py-1 rounded text-[10px] font-medium border border-gray-700/50 group-hover:bg-purple-500/20 group-hover:text-purple-300 group-hover:border-purple-500/30 transition-colors">
+                  <Upload className="w-3 h-3 inline mr-1" />
+                  Select File
+                </span>
+              </div>
+            </>
+          )}
+        </div>
+      </div>
     </div>
   );
 };
